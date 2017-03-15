@@ -3,8 +3,8 @@ os=FreeRTOS
 
 export AM_DIR_TOP=$(pwd)
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$AM_DIR_TOP
-export AM_ARCH_CPU_PATH=$AM_DIR_TOP/arch/arm/$chip_name/cpu
-export AM_ARCH_LIB_PATH=$AM_DIR_TOP/arch/arm/$chip_name/lib
+export AM_ARCH_CPU_PATH=$AM_DIR_TOP/arch/armv7/$chip_name/cpu
+export AM_ARCH_LIB_PATH=$AM_DIR_TOP/arch/armv7/$chip_name/lib
 export AM_APP_PATH=$AM_DIR_TOP/application
 export AM_DEV_PATH=$AM_DIR_TOP/device/$chip_name
 export AM_DRV_PATH=$AM_DIR_TOP/drivers/$chip_name
