@@ -31,3 +31,10 @@
 # Debug files
 *.dSYM/
 *.su
+
+#Special files
+*.bin
+*.map
+*.sec
+*.syms
+*.*.dump

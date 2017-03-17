@@ -9,6 +9,7 @@ export AM_APP_PATH=$AM_DIR_TOP/application
 export AM_DEV_PATH=$AM_DIR_TOP/device/$chip_name
 export AM_DRV_PATH=$AM_DIR_TOP/drivers/$chip_name
 export AM_SYS_PATH=$AM_DIR_TOP/system/$os
+export AM_OUT_PATH=$AM_DIR_TOP/out
 
 envprint()
 {
@@ -21,6 +22,7 @@ envprint()
 	echo "AM_DEV_PATH = $AM_DEV_PATH"
 	echo "AM_DRV_PATH = $AM_DRV_PATH"
 	echo "AM_SYS_PATH = $AM_SYS_PATH"
+	echo "AM_OUT_PATH = $AM_OUT_PATH"
 	echo ""
 }
 
@@ -57,6 +59,11 @@ cdlib()
 croot()
 {
 	cd $AM_DIR_TOP
+}
+
+cdout()
+{
+	cd $AM_OUT_PATH
 }
 
 envprint

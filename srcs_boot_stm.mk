@@ -1,2 +1,0 @@
-AOBJS	:=0
-COBJS	:=0
