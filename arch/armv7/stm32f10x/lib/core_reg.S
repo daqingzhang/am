@@ -101,3 +101,8 @@ __set_CONTROL:
 	msr	control,r0
 	isb
 	mov	pc,lr
+
+.global	__get_SP
+__get_SP:
+	mov	r0,sp
+	mov	pc,lr

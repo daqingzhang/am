@@ -38,3 +38,4 @@
 *.sec
 *.syms
 *.*.dump
+tags
