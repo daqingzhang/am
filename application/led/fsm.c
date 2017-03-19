@@ -58,7 +58,9 @@ int fsm_init(struct fsm_device *dev)
 }
 
 /**
- * fsm_update() - Change the current state into a new state
+ * fsm_update() - Switch current state to new state. Before the state switches
+ * we need to search the new state by calling fsm_search().
+ *
  * @dev :	Device pointer will be updated
  *
  * @return:	0(success) or -1(failed)
@@ -70,7 +72,9 @@ int fsm_update(struct fsm_device *dev)
 }
 
 /**
- * fsm_search() - Search the next state by the route
+ * fsm_search() - Search a new state by the route value. This must be called
+ * at lease once before switch to the new state.
+ *
  * @dev :	Device pointer
  * @route:	Route value for finding next state
  *
