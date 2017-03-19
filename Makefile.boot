@@ -10,12 +10,14 @@ OUT_DIR		:=out/$(APP_NAME)
 OUT_OBJS_DIR	:=$(OUT_DIR)/objs
 
 APP_DIR		:=application
+APP_INC		:=$(APP_DIR)/include
+APP_COMM	:=$(APP_DIR)/common
 APP_TASK_DIR	:=$(APP_DIR)/$(APP_NAME)
 APP_TASK_INC	:=$(APP_DIR)/$(APP_NAME)/include
-APP_INC		:=$(APP_DIR)/include
-
+DEV_DIR		:=device/$(CHIP_NAME)
 DEV_INC		:=device/include
-DRV_INC		:=drivers/$(CHIP_NAME)/include
+DRV_DIR		:=drivers/$(CHIP_NAME)
+DRV_INC		:=$(DRV_DIR)/include
 ARCH_INC	:=arch/$(ARCH)/$(CHIP_NAME)/include
 ARCH_CPU_INC	:=arch/$(ARCH)/$(CHIP_NAME)/cpu/include
 
@@ -24,11 +26,14 @@ SYS_SRC_INC	:=system/$(OS_NAME)/Source/include
 SYS_PORT_INC	:=system/$(OS_NAME)/Source/portable/GCC/ARM_CM3
 SYS_MEM_INC	:=system/$(OS_NAME)/Source/portable/MemMang
 
+INCS		:= -I$(APP_DIR)
 INCS		+= -I$(APP_INC)
-INCS		+= -I$(APP_DIR)
-INCS		+= -I$(APP_TASK_INC)
+INCS		+= -I$(APP_COMM)
 INCS		+= -I$(APP_TASK_DIR)
+INCS		+= -I$(APP_TASK_INC)
+INCS		+= -I$(DEV_DIR)
 INCS		+= -I$(DEV_INC)
+INCS		+= -I$(DRV_DIR)
 INCS		+= -I$(DRV_INC)
 INCS		+= -I$(ARCH_INC)
 INCS		+= -I$(ARCH_CPU_INC)
@@ -64,7 +69,7 @@ OBJCOPY := $(TC)-objcopy
 OBJDUMP := $(TC)-objdump
 
 CC_OPTS		:= -g -mthumb -mcpu=cortex-m3 -march=armv7-m
-CC_OPTS		+= -O2 -Wall -static -fno-common -fno-builtin-printf
+CC_OPTS		+= -O2 -Wall -Werror -static -fno-common -fno-builtin-printf
 
 LD_OPTS		:= -T linker_boot.ld $(INCS)
 LD_OPTS		+= -Wl,-nostdlib,--relax,-Map=$(TARGET_MAP),--gc-sections
@@ -149,6 +154,7 @@ clean:
 	rm -f $(TARGET_BIN_DUMP)
 	rm -f $(TARGET_HEX_DUMP)
 	rm -f application/$(APP_NAME)/*.o
+	rm -f application/common/*.o
 	rm -f arch/$(ARCH)/$(CHIP_NAME)/cpu/*.o
 	rm -f arch/$(ARCH)/$(CHIP_NAME)/lib/*.o
 	rm -f drivers/$(CHIP_NAME)/*.o

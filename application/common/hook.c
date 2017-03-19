@@ -1,5 +1,7 @@
 #include <string.h>
 #include <common.h>
+
+#ifdef CONFIG_TASK_INFO
 #include <stm32f10x_system.h>
 #include <led.h>
 #include <key.h>
@@ -7,7 +9,6 @@
 #include <led_task.h>
 #include <key_task.h>
 
-#ifdef CONFIG_TASK_INFO
 #define TASK_STATUS_NUM 6
 
 #define INIT_TASK_STATE(_name,_cnt) 	\
@@ -73,7 +74,7 @@ void vTaskInfoInit(void)
 	pt[i++].handle = KeyGetHandle;
 	pt[i++].handle = KeyPrcHandle;
 	pt[i++].handle = KeyWthHandle;
-/*	rprintf("%s, LedDispHandle = %x, pt[0].handle = %x\r\n",
+/*	rprintf("%s, LedDispHandle = %x, pt[0].handle = %x\n",
 		__func__,LedDispHandle, pt[0].handle);
 */
 }
@@ -91,7 +92,7 @@ static void vTaskInfoCollector(void)
 		j = eTaskGetState(pt->handle);
 		if(j >= TASK_STATUS_NUM) {
 			vTaskSuspendAll();
-			rprintf("vTaskInfoCollector, error %d !\r\n",j);
+			rprintf("vTaskInfoCollector, error %d !\n",j);
 			xTaskResumeAll();
 			err = 1;
 			break;
@@ -118,17 +119,17 @@ static void vTaskInfoPrinter(void)
 	uAppTaskTickNum = 0;
 
 	vTaskSuspendAll();
-	rprintf("\r\n");
+	rprintf("\n");
 	for(i = 0;i < ARRAY_SIZE(AppTasks);i++) {
 		pt = AppTasks + i;
 		ps = pt->state;
 		rprintf("%s\t, %s = %d\t, %s = %d\t,%s = %d\t,"
-			"%s = %d\t, %s = %d\t, %s = %d\r\n",
+			"%s = %d\t, %s = %d\t, %s = %d\n",
 			pt->name,
 			ps[0].name,ps[0].cnt,ps[1].name,ps[1].cnt,
 			ps[2].name,ps[2].cnt,ps[3].name,ps[3].cnt,
 			ps[4].name,ps[4].cnt,ps[5].name,ps[5].cnt);
-		rprintf("\r\n");
+		rprintf("\n");
 	}
 	xTaskResumeAll();
 }
@@ -198,40 +199,40 @@ void vMsgPrint(void  *pvParameters,char c)
 	vTaskSuspendAll();
 	switch(c) {
 	case 's':
-	{
-		char *s = (char *)pvParameters;
-		rprintf("%s",s);
-	}
+		{
+			char *s = (char *)pvParameters;
+			rprintf("%s",s);
+		}
 		break;
 	case 'x'://u32
-	{
-		u32 d = *(u32 *)pvParameters;
-		rprintf("%8x",d);
-	}
+		{
+			u32 d = *(u32 *)pvParameters;
+			rprintf("%8x",d);
+		}
 		break;
 	case 'h'://u16
-	{
-		u16 d = *(u16 *)pvParameters;
-		rprintf("%4x",d);
-	}
+		{
+			u16 d = *(u16 *)pvParameters;
+			rprintf("%4x",d);
+		}
 		break;
 	case 'b'://u8
-	{
-		u8 d = *(u8 *)pvParameters;
-		rprintf("%2x",d);
-	}
+		{
+			u8 d = *(u8 *)pvParameters;
+			rprintf("%2x",d);
+		}
 		break;
 	case 'c':
-	{
-		char d = *(char *)pvParameters;
-		rprintf("%c",d);
-	}
+		{
+			char d = *(char *)pvParameters;
+			rprintf("%c",d);
+		}
 		break;
 	case 'd':
-	{
-		u32 d = *(char *)pvParameters;
-		rprintf("%d",d);
-	}
+		{
+			u32 d = *(char *)pvParameters;
+			rprintf("%d",d);
+		}
 		break;
 	default:
 		break;
@@ -239,4 +240,9 @@ void vMsgPrint(void  *pvParameters,char c)
 	if(!xTaskResumeAll()) {
 		taskYIELD();
 	}
+}
+
+u16 CalCRC16(u8 *pdata,int size)
+{
+	return 0xabcd;
 }

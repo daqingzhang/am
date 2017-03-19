@@ -6,6 +6,8 @@ ARCH_COBJS := \
 	./arch/$(ARCH)/$(CHIP_NAME)/lib/interrupts.o	\
 	./arch/$(ARCH)/$(CHIP_NAME)/lib/string.o	\
 	./arch/$(ARCH)/$(CHIP_NAME)/lib/timer.o		\
+	./arch/$(ARCH)/$(CHIP_NAME)/lib/serial.o	\
+	./arch/$(ARCH)/$(CHIP_NAME)/lib/board.o	\
 
 DRV_COBJS := \
 	./drivers/$(CHIP_NAME)/stm32f10x_system.o	\
@@ -15,7 +17,6 @@ DRV_COBJS := \
 	./drivers/$(CHIP_NAME)/stm32f10x_usart.o	\
 
 DEV_COBJS := \
-	./device/$(CHIP_NAME)/serial.o	\
 	./device/$(CHIP_NAME)/key.o	\
 	./device/$(CHIP_NAME)/motor.o	\
 	./device/$(CHIP_NAME)/infra.o	\
@@ -35,13 +36,11 @@ SYS_COBJS := \
 	./system/$(OS_NAME)/Source/portable/GCC/ARM_CM3/port.o	\
 
 APP_COBJS := \
+	./application/common/hook.o		\
+	./application/common/fsm_v2.o		\
 	./application/$(APP_NAME)/main.o	\
-	./application/$(APP_NAME)/test.o	\
-	./application/$(APP_NAME)/hook.o	\
-	./application/$(APP_NAME)/fsm.o		\
 	./application/$(APP_NAME)/led_fsm.o	\
 	./application/$(APP_NAME)/led_task.o	\
-	./application/$(APP_NAME)/key_task.o	\
 
 COBJS	:= \
 	$(ARCH_COBJS)	\

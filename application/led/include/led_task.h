@@ -1,7 +1,7 @@
 #ifndef __LEDTASK_H__
 #define __LEDTASK_H__
 #include <common.h>
-#include <fsm.h>
+#include <fsm_v2.h>
 
 #define LED_MSG_HEAD_SIZE	1
 #define LED_MSG_CMD_SIZE	1
@@ -89,7 +89,8 @@ struct LedMsgFmt
 #define STATE_RSP	FSM_COMM_S2
 #define STATE_IDLE	FSM_COMM_S3
 
-struct fsm_device *led_fsm_get_device(void);
+struct fsm_device *led_fsm_get(void);
+int led_fsm_register(void);
 
 int xLedTaskConstructor(void);
 

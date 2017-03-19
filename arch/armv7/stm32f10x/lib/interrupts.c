@@ -76,7 +76,18 @@ static void show_regs(const struct pt_regs *regs, const char *exception_str)
 #define IRQ_FRAME_OFFS	0x08
 #define GET_SP_ADDR(offs)	(__get_SP() + offs)
 
-volatile void NMI_Handler(void)
+int interrupts_enable(void)
+{
+	__enable_irq();
+	return 0;
+}
+
+void inerrupts_disable(void)
+{
+	__disable_irq();
+}
+
+void NMI_Handler(void)
 {
 	show_regs((const struct pt_regs *)GET_SP_ADDR(IRQ_FRAME_OFFS),
 			exception_vect_str[EXCP_ID_NMI]);

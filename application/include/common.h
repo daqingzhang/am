@@ -4,7 +4,9 @@
 #include <serial.h>
 #include <timer.h>
 
+#ifndef ARRAY_SIZE
 #define ARRAY_SIZE(arr)	(sizeof(arr)/sizeof((arr)[0]))
+#endif
 
 #ifdef CONFIG_USE_FREERTOS
 #include <FreeRTOS.h>
@@ -20,4 +22,6 @@ void rprintf(const char *fmt, ...);
 void mdelay(unsigned long ms);
 void udelay(unsigned long us);
 
+int interrupts_enable();
+void interrupts_disable();
 #endif

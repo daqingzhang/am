@@ -11,50 +11,10 @@ struct fsm_state led_fsm_map[] =
 	{.current = STATE_RSP,  .route = RSP_TO_IDLE,  .next = STATE_IDLE},
 	{.current = STATE_IDLE, .route = IDLE_TO_IDLE, .next = STATE_IDLE},
 	{.current = STATE_IDLE, .route = IDLE_TO_DISP, .next = STATE_DISP},
+	{.current = FSM_S_END,	.route = FSM_R_END,    .next = FSM_S_END},
 };
 
-static int led_fsm_search(struct fsm_state *state, int route)
-{
-	struct fsm_state *p;
-	int i, err = -1;
-
-	for(i = 0;i < ARRAY_SIZE(led_fsm_map);i++) {
-		p = &led_fsm_map[i];
-		if((p->current == state->current) && (p->route == route)) {
-			state->next = p->next;
-			state->route = route;
-			err = 0;
-			break;
-		}
-	}
-	return err;
-}
-
-static int led_fsm_update(struct fsm_state *state)
-{
-	if(state->next < 0)
-		return -1;
-
-	state->current = state->next;
-	return 0;
-}
-
-static int led_fsm_get_current_state(struct fsm_state *state)
-{
-	return state->current;
-}
-
-static int led_fsm_get_next_state(struct fsm_state *state)
-{
-	return state->next;
-}
-
-static int led_fsm_get_route(struct fsm_state *state)
-{
-	return state->route;
-}
-
-static int led_fsm_init(struct fsm_state *p)
+static int led_fsm_init(struct fsm_state *p, void *priv)
 {
 	if(p == NULL)
 		return -1;
@@ -66,33 +26,36 @@ static int led_fsm_init(struct fsm_state *p)
 	return 0;
 }
 
-static void led_fsm_print(struct fsm_state *s)
+static int led_fsm_debug(struct fsm_state *s,void *priv)
 {
 	rprintf("\r\nstate: current: %d, r: %d, next: %d\r\n",
 			s->current,s->route,s->next);
+	return 0;
 }
+#if 0
+static void led_fsm_run(struct fsm_state *s, void *priv)
+{
+	return 0;
+}
+#endif
 
 static struct fsm_operations led_fsm_ops =
 {
-	.init = led_fsm_init,
-	.update = led_fsm_update,
-	.search = led_fsm_search,
-	.get_next_state = led_fsm_get_next_state,
-	.get_current_state = led_fsm_get_current_state,
-	.get_route = led_fsm_get_route,
-	.print = led_fsm_print,
+	.init	= led_fsm_init,
+	//.run	= led_fsm_run,
+	.run	= NULL,
+	.debug	= led_fsm_debug,
 };
 
-static struct fsm_device led_fsm_dev =
+static struct fsm_device led_fsm_dev;
+
+int led_fsm_register(void)
 {
-	.inited = 1,
-	.name = "led_fsm_device",
-	.priv = (void *)led_fsm_map,
-	.ops = &led_fsm_ops,
-};
+	return fsm_register(&led_fsm_dev, "led_fsm",
+				&led_fsm_ops,led_fsm_map,0);
+}
 
-struct fsm_device *led_fsm_get_device(void)
+struct fsm_device *led_fsm_get(void)
 {
 	return &led_fsm_dev;
 }
-
