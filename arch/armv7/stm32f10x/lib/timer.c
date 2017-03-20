@@ -5,13 +5,13 @@
 
 void timer_init(int id)
 {
-	if(id == TIMER4_ID)
+	if(id & TIMER4_ID)
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4,ENABLE);
-	else if(id == TIMER3_ID)
+	if(id & TIMER3_ID)
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3,ENABLE);
-	else if(id == TIMER2_ID)
+	if(id & TIMER2_ID)
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2,ENABLE);
-	else if(id == TIMER1_ID)
+	if(id & TIMER1_ID)
 		RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1,ENABLE);
 	else
 		return;

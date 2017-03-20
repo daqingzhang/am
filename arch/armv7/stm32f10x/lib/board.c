@@ -9,11 +9,17 @@ void board_init(void)
 
 	// init system clock
 	retval = system_init_clock();
+
+	// config serial
+	serial_init(USART1_ID | USART2_ID);
+
+	rprintf("\nserial inited\n");
+
 	if(retval) {
-		rprintf("init system clock failed %d\n",retval);
+		rprintf("init system clock failed, %d\n",retval);
 		return;
 	}
-	rprintf("SYS: %d MHz, APB1: %d MHz, APB2: %d MHz\n",
+	rprintf("SYS: %d Hz, APB1: %d Hz, APB2: %d Hz\n",
 		clktree.sysclk, clktree.apb1clk, clktree.apb2clk);
 
 	cpuid = system_get_cpuid();
@@ -25,8 +31,8 @@ void board_init(void)
 	rprintf("prigrp: %x\n",prigrp);
 
 	// set vector address
-	system_set_vectaddr(NVIC_VECTOR_BASE_FLASH,0);
-	rprintf("vect addr: %x\n",NVIC_VECTOR_BASE_FLASH);
+	system_set_vectaddr(NVIC_VECTOR_BASE_ADDR,0);
+	rprintf("vect addr: %x\n",NVIC_VECTOR_BASE_ADDR);
 
 	// config system tick
 	retval = system_systick_config(CONFIG_SYSTICK_MS(100));
@@ -38,15 +44,9 @@ void board_init(void)
 
 	// config pinmux & GPIO
 
-	// config serial
-	serial_init(USART1_ID);
-	serial_init(USART2_ID);
-
 	// config TIMER1,TIMER2,TIMER3,TIMER4
-	timer_init(TIMER1_ID);
-	timer_init(TIMER2_ID);
-	timer_init(TIMER3_ID);
-	timer_init(TIMER4_ID);
+	timer_init(TIMER1_ID | TIMER2_ID | TIMER3_ID | TIMER4_ID);
+	rprintf("timer inited\n");
 
 	__enable_irq();
 

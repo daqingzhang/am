@@ -2,10 +2,10 @@
 #define __TIMER_H__
 
 enum {
-	TIMER1_ID,
-	TIMER2_ID,
-	TIMER3_ID,
-	TIMER4_ID,
+	TIMER1_ID = (1 << 0),
+	TIMER2_ID = (1 << 1),
+	TIMER3_ID = (1 << 2),
+	TIMER4_ID = (1 << 3),
 };
 
 #define DELAY_TIMER TIMER4_ID

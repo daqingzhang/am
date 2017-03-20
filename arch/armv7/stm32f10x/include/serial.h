@@ -8,9 +8,8 @@
 #define NVIC_CHANNEL_PRIO_USART2 12
 
 enum {
-	NULL_ID   = 0,
-	USART1_ID = 1,
-	USART2_ID = 2,
+	USART1_ID = (1 << 0),
+	USART2_ID = (1 << 1),
 };
 
 void serial_init(int id);

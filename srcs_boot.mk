@@ -36,11 +36,21 @@ SYS_COBJS := \
 	./system/$(OS_NAME)/Source/portable/GCC/ARM_CM3/port.o	\
 
 APP_COBJS := \
-	./application/common/hook.o		\
-	./application/common/fsm_v2.o		\
-	./application/$(APP_NAME)/main.o	\
-	./application/$(APP_NAME)/led_fsm.o	\
-	./application/$(APP_NAME)/led_task.o	\
+	./application/common/hook.o	\
+	./application/common/fsm_v2.o
+
+ifneq ($(findstring led,$(APP_NAME)),)
+APP_COBJS += \
+	./application/led/main.o	\
+	./application/led/led_fsm.o	\
+	./application/led/led_task.o
+endif
+
+ifneq ($(findstring key,$(APP_NAME)),)
+APP_COBJS += \
+	./application/key/main.o	\
+	./application/key/key_task.o
+endif
 
 COBJS	:= \
 	$(ARCH_COBJS)	\

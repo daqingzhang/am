@@ -45,7 +45,7 @@ INCS		+= -I$(SYS_MEM_INC)
 #==============================================================================
 # Target Files
 #==============================================================================
-TARGET		:= boot
+TARGET		:= $(APP_NAME)
 TARGET_ELF	:= $(TARGET).elf
 TARGET_BIN	:= $(TARGET).bin
 TARGET_HEX	:= $(TARGET).hex

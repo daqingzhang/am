@@ -12,16 +12,12 @@
  */
 static int usart_config_nvic(int id)
 {
-	switch(id) {
-	case USART1_ID: //USART1
+	if(id & USART1_ID) {
 		system_nvic_set_channel(USART1_IRQn,NVIC_CHANNEL_PRIO_USART1,0,1);
-		break;
-	case USART2_ID: //USART2
-		system_nvic_set_channel(USART2_IRQn,NVIC_CHANNEL_PRIO_USART2,0,1);
-		break;
-	default:
-		return -1;
 	}
+	if(id & USART2_ID) {
+		system_nvic_set_channel(USART2_IRQn,NVIC_CHANNEL_PRIO_USART2,0,1);
+	} 
 	return 0;
 }
 
@@ -29,8 +25,7 @@ static int usart_config_pins(int id)
 {
 	GPIO_InitTypeDef init;
 
-	switch(id) {
-	case USART1_ID:
+	if(id & USART1_ID) {
 		/* enable gpio apb clock
 		 * USART1 Rx (PA.10) input-floating
 		 * USART1 Tx (PA.09) alt-push-pull
@@ -45,8 +40,8 @@ static int usart_config_pins(int id)
 		init.GPIO_Pin    = GPIO_Pin_10;
 		init.GPIO_Mode   = GPIO_Mode_IN_FLOATING;
 		GPIO_Init(GPIOA, &init);
-		break;
-	case USART2_ID:
+	}
+	if(id & USART2_ID) {
 		/* enable gpio apb clock
 		 * USART2 Tx (PA.02) as alt-push-pull
 		 * USART2 Rx (PA.03) as input-floating
@@ -61,9 +56,6 @@ static int usart_config_pins(int id)
 		init.GPIO_Pin    = GPIO_Pin_3;
 		init.GPIO_Mode   = GPIO_Mode_IN_FLOATING;
 		GPIO_Init(GPIOA, &init);
-		break;
-	default:
-		return -1;
 	}
 	return 0;
 }
@@ -80,34 +72,26 @@ static int usart_config_format(int id,int baudrate)
 	init.USART_Mode        = USART_Mode_Rx | USART_Mode_Tx;
 	init.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
 
-	switch(id) {
-	case USART1_ID:
+	if(id & USART1_ID) {
 		RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
 		USART_Init(USART1, &init);
 		USART_Cmd(USART1, ENABLE);
-		break;
-	case USART2_ID:
+	}
+	if(id & USART2_ID) {
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
 		USART_Init(USART2, &init);
 		USART_Cmd(USART2, ENABLE);
-		break;
-	default:
-		return -1;
 	}
 	return 0;
 }
 
 static int usart_reset(int id)
 {
-	switch(id) {
-	case USART1_ID:
+	if(id & USART1_ID) {
 		USART_DeInit(USART1);
-		break;
-	case USART2_ID:
+	}
+	if(id & USART1_ID) {
 		USART_DeInit(USART2);
-		break;
-	default:
-		return -1;
 	}
 	return 0;
 }
@@ -170,31 +154,31 @@ static void __usart2_putc(char ch)
 
 void serial_init(int id)
 {
-	if(id == USART1_ID)
+	if(id & USART1_ID)
 		usart_init(USART1_ID,CONFIG_USART1_BAUDRATE);
-	else if(id == USART2_ID)
+
+	if(id & USART2_ID)
 		usart_init(USART2_ID,CONFIG_USART2_BAUDRATE);
 }
 
 char serial_getc(int id)
 {
-	char ch;
+	char ch = 0;
 
-	if(id == USART1_ID)
+	if(id & USART1_ID)
 		ch = __usart1_getc();
-	else if(id == USART2_ID)
+	if(id & USART2_ID)
 		ch = __usart2_getc();
-	else
-		ch = 0;
 
 	return ch;
 }
 
 static void serial_putc_hw(int id,char ch)
 {
-	if(id == USART1_ID)
+	if(id & USART1_ID)
 		__usart1_putc(ch);
-	else if(id == USART2_ID)
+
+	if(id & USART2_ID)
 		__usart2_putc(ch);
 }
 
@@ -210,10 +194,11 @@ int serial_tstc(int id)
 {
 	int r = 0;
 
-	if(id == USART1_ID) {
+	if(id & USART1_ID) {
 		if(USART1->SR & USART_FLAG_RXNE)
 			r = 1;
-	} else if(id == USART2_ID) {
+	}
+	if(id & USART2_ID) {
 		if(USART2->SR & USART_FLAG_RXNE)
 			r = 1;
 	}
@@ -387,7 +372,6 @@ static char *flex_i2a(unsigned num, char *pstr, int radix, int len, int digits)
 	len = digits - (pstr+len-p-1); // target_digits - current_chars
 	for (; len > 0; len--)
 		*--p = ch;
-
 	return p;
 }
 

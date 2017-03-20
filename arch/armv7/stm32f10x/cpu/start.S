@@ -1,4 +1,4 @@
-#define CONFIG_STACK_INIT_SP 0x20005000
+#include <config.h>
 
 	.syntax	unified
 	.arch armv7-m
@@ -8,7 +8,7 @@
 	.align 2
 	.globl _start
 _start:
-	.long	CONFIG_STACK_INIT_SP  /* Top of Stack 	*/
+	.long	CONFIG_INIT_SP_ADDR  /* Top of Stack 	*/
 	.long	Reset_Handler         /* Reset Handler 	*/
 	.long	NMI_Handler           /* NMI Handler 	*/
 	.long	HardFault_Handler     /* Hard Fault Handler 	*/
@@ -128,7 +128,7 @@ clrbss_e:
 	mov	r12,r0
 
 	/* init sp,8 bytes aligned */
-	ldr	sp, =((CONFIG_STACK_INIT_SP) & ~0x0007)
+	ldr	sp, =((CONFIG_INIT_SP_ADDR) & ~0x0007)
 
 	/* init AHB,APB,System clock */
 	bl	board_init

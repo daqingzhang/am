@@ -1,18 +1,11 @@
 #ifndef __STM32F10X_SYSTEM_H__
 #define __STM32F10X_SYSTEM_H__
 #include <stm32f10x.h>
+#include <config.h>
 
 #ifndef assert_param
 #define assert_param(...) do{} while(0)
 #endif
-
-#define CONFIG_SYSCLK_72MHZ 72000000
-#define CONFIG_SYSCLK_64MHZ 64000000
-#define CONFIG_APBCLK_72MHZ 72000000
-#define CONFIG_APBCLK_36MHZ 36000000
-#define CONFIG_APBCLK_32MHZ 32000000
-
-#define CONFIG_SYSCLK  CONFIG_SYSCLK_72MHZ
 
 #define CONFIG_SYSTICK_US(us) (CONFIG_SYSCLK / 1000000 * us)
 #define CONFIG_SYSTICK_MS(ms) (CONFIG_SYSCLK / 1000 * ms)
@@ -25,9 +18,6 @@ struct clock_tree
 };
 
 extern struct clock_tree clktree;
-
-#define NVIC_VECTOR_BASE_FLASH	(0x08000000)
-#define NVIC_VECTOR_BASE_SRAM	(0x20000000)
 
 /*
  * if SCR[4] is set 1, processor will wakeup when a interrupt transmition
