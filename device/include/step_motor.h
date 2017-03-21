@@ -1,5 +1,5 @@
-#ifndef __MOTOR_H__
-#define __MOTOR_H__
+#ifndef __STEP_MOTOR_H__
+#define __STEP_MOTOR_H__
 
 void motor_init(void);
 void motor_brake(void);
@@ -24,4 +24,4 @@ struct motor_dev {
 };
 
 
-#endif /* __MOTOR_H__ */
+#endif /* __STEP_MOTOR_H__ */

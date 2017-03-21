@@ -1,7 +1,7 @@
 #include <common.h>
 #include <stm32f10x_rcc.h>
 #include <stm32f10x_gpio.h>
-#include <motor.h>
+#include <step_motor.h>
 
 #define MTR_GPIOA	GPIOA
 #define MTR_IN1		GPIO_Pin_4
