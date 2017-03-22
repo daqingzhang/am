@@ -3,63 +3,111 @@
 #include <stm32f10x_gpio.h>
 #include <dc_motor.h>
 
-#define LMOTOR_ID	1
+#define DCMOTOR_NR	(2)
+#define LMOTOR_ID	(1 << 0)
+#define RMOTOR_ID	(1 << 1)
+
 #define LMOTOR_GPIO	GPIOA
 #define LMOTOR_PINA	GPIO_Pin_4
 #define LMOTOR_PINB	GPIO_Pin_5
 
-#define RMOTOR_ID	2
 #define RMOTOR_GPIO	GPIOA
 #define RMOTOR_PINA	GPIO_Pin_6
 #define RMOTOR_PINB	GPIO_Pin_7
 
-int dc_motor_init(struct dc_motor *m, void *priv)
+#define dprintf rprintf
+
+struct dc_motor_pins_grp
 {
-	unsigned short pin;
-	int id = *priv;
+	void *gpio;
+	unsigned int pina;
+	unsigned int pinb;
+};
+
+static dc_motor_pins_grp lmotor_grp = {
+	.gpio = LMOTOR_GPIO,
+	.pina = LMOTOR_PINA,
+	.pinb = LMOTOR_PINB,
+};
+
+static dc_motor_pins_grp rmotor_grp = {
+	.gpio = RMOTOR_GPIO,
+	.pina = RMOTOR_PINA,
+	.pinb = RMOTOR_PINB,
+};
+
+static int motor_init(void *priv,int wa,int wb)
+{
+	struct dc_motor_pins_grp *grp = priv;
 	GPIO_InitTypeDef Init;
 
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA,ENABLE);
 
-	if(id == LMOTOR_ID) {
-		pin = (LMOTOR_PINA | LMOTOR_PINB);
+	Init.GPIO_Pin   = grp->pina | grp->pinb;
+	Init.GPIO_Mode  = GPIO_Mode_Out_PP;
+	Init.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(grp->gpio,&Init);
 
-
-		Init.GPIO_Pin   = pin;
-		Init.GPIO_Mode  = GPIO_Mode_Out_PP;
-		Init.GPIO_Speed = GPIO_Speed_50MHz;
-		GPIO_Init(LMOTOR_GPIO,&Init);//GPIOA
-		if(m->wire_a)
-			GPIO_WriteBit(LMOTOR_GPIO,LMOTOR_PINA,Bit_SET);
-		else
-			GPIO_WriteBit(LMOTOR_GPIO,LMOTOR_PINA,Bit_RESET);
-
-		if(m->wire_b)
-			GPIO_WriteBit(LMOTOR_GPIO,LMOTOR_PINB,Bit_SET);
-		else
-			GPIO_WriteBit(LMOTOR_GPIO,LMOTOR_PINB,Bit_RESET);
-	}
-	if(id == RMOTOR_ID) {
-		pin = (RMOTOR_PINA | RMOTOR_PINB);
-
-		Init.GPIO_Pin   = (unsigned short)pin;
-		Init.GPIO_Mode  = GPIO_Mode_Out_PP;
-		Init.GPIO_Speed = GPIO_Speed_50MHz;
-		GPIO_Init(RMOTOR_GPIO,&Init);//GPIOA
-		if(m->wire_a)
-			GPIO_WriteBit(RMOTOR_GPIO,RMOTOR_PINA,Bit_SET);
-		else
-			GPIO_WriteBit(RMOTOR_GPIO,RMOTOR_PINA,Bit_RESET);
-
-		if(m->wire_b)
-			GPIO_WriteBit(RMOTOR_GPIO,RMOTOR_PINB,Bit_SET);
-		else
-			GPIO_WriteBit(RMOTOR_GPIO,RMOTOR_PINB,Bit_RESET);
-	}
+	GPIO_WriteBit(grp->gpio,grp->pina,wa);
+	GPIO_WriteBit(grp->gpio,grp->pinb,wb);
+	dprintf("%s, pina %d = %d\n",__func__, grp->pina,wa);
+	dprintf("%s, pinb %d = %d\n",__func__, grp->pinb,wb);
 	return 0;
 }
 
-int dc_motor_run(struct dc_motor *m, void *priv, unsigned int pulse)
+static int motor_run(void *priv, int wa, int wb, unsigned int pulse)
 {
+	struct dc_motor_pins_grp *grp = priv;
 
+	dprintf("%s, pina %d = %d\n",__func__, grp->pina,wa);
+	dprintf("%s, pinb %d = %d\n",__func__, grp->pinb,wb);
+
+	GPIO_WriteBit(grp->gpio,grp->pina,wa);
+	GPIO_WriteBit(grp->gpio,grp->pinb,wb);
+
+	mdelay(pulse);
+	return 0;
 }
+
+void int motor_stop(void *priv, int wa, int wb)
+{
+	struct dc_motor_pins_grp *grp = priv;
+
+	dprintf("%s, pina %d = %d\n",__func__, grp->pina,wa);
+	dprintf("%s, pinb %d = %d\n",__func__, grp->pinb,wb);
+
+	GPIO_WriteBit(grp->gpio,grp->pina,wa);
+	GPIO_WriteBit(grp->gpio,grp->pinb,wb);
+	return 0;
+}
+
+struct dc_motor_operations motor_ops[] = {
+	{
+		.init = motor_init,
+		.run  = motor_run,
+		.stop = motor_stop,
+	},
+	{
+		.init = motor_init,
+		.run  = motor_run,
+		.stop = motor_stop,
+	},
+};
+
+struct dc_motor motors[DCMOTOR_NR];
+
+int dc_motor_register(struct dc_motor *motor, struct dc_motor_operations *ops,
+			const char *name, int id, void *priv)
+{
+	if((!motor) || (!ops))
+		return -1;
+
+	motor->name = name;
+	motor->id = id;
+	motor->ops = ops;
+	motor->priv = priv;
+
+	if(motor->ops->init)
+		motor->ops->init(motor->priv, 0,0);
+}
+
