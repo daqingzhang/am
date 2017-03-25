@@ -1,15 +1,6 @@
 #ifndef __MOTOR_H__
 #define __MOTOR_H__
 
-struct motor_pins
-{
-	void *gpio;
-	unsigned int pina;
-	unsigned int pinb;
-	unsigned int pinc;
-	unsigned int pind;
-};
-
 struct motor
 {
 	int wire_a;
@@ -37,7 +28,6 @@ struct motor_dev
 
 int motor_register(struct motor_dev *d, struct motor_operations *ops,
 			const char *name, int id,void *priv);
-
 int motor_unregister(struct motor_dev *d);
 int motor_stop(struct motor_dev *d);
 int motor_run_backward(struct motor_dev *d, unsigned int mm);
