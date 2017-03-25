@@ -17,6 +17,7 @@
 struct key_gpio
 {
 	const char *name;
+	int id;
 	void *gpio;
 	unsigned int pin;
 };
@@ -24,16 +25,19 @@ struct key_gpio
 static struct key_gpio key_gp[] = {
 	{
 		.name = "KEY2",
+		.id   = KEY2_ID,
 		.gpio = KEY_GPIO,
 		.pin  = K2_PIN,
 	},
 	{
 		.name = "KEY3",
+		.id   = KEY3_ID,
 		.gpio = KEY_GPIO,
 		.pin  = K3_PIN,
 	},
 	{
 		.name = "KEY4",
+		.id   = KEY4_ID,
 		.gpio = KEY_GPIO,
 		.pin  = K4_PIN,
 	},
@@ -76,14 +80,14 @@ static struct sensor_dev key_dev[KEY_DEV_NR];
 
 int key_register(void)
 {
-	int i,id;
+	int i;
 
 	for(i = 0;i < KEY_DEV_NR;i++) {
-		id = i + 1;
-		sensor_register(&key_dev[i],&key_ops,key_gp[i].name,
-					id,&key_gp[i]);
+		sensor_register(&key_dev[i], &key_ops, key_gp[i].name,
+				key_gp[i].id, &key_gp[i]);
+
 		dprintf("%s, %s registered, id = %d\n",__func__,
-			key_gp[i].name, id);
+			key_gp[i].name, key_gp[i].id);
 	}
 	return 0;
 }
