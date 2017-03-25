@@ -1,6 +1,5 @@
 #include <common.h>
 #include <key.h>
-//#include <speaker.h>
 #include <key_task.h>
 
 TaskHandle_t KeyGetHandle = NULL;
@@ -28,20 +27,30 @@ void vKeyWatcherTask(void *pvParameters)
 
 void vKeyGetTask(void *pvParameters)
 {
-	TickType_t period = 2,tick = 0,cnt = 0,wait = 10;
+	TickType_t tick,cnt = 0;
 	u32 k;
+	int val,i,id[] = {KEY2_ID,KEY3_ID,KEY4_ID};
+	struct sensor_dev *key[KEY_DEV_NR];
+
+	for(i = 0;i < KEY_DEV_NR;i++)
+		key[i] = key_get(id[i]);
 
 	for(;;) {
 		tick = xTaskGetTickCount();
-		vTaskDelayUntil(&tick,period);
+		vTaskDelayUntil(&tick,2);
 
-		k = read_key();
+		k = 0;
+		for(i = 0;i < KEY_DEV_NR;i++) {
+			sensor_read(key[i], &val);
+			if(val)
+				k |= (1 << i);
+		}
 		if(k == 0) {
 			cnt = 0;
 			continue;
 		}
 		cnt++;
-		if(cnt < 6)
+		if(cnt < 5)
 			continue;
 		cnt = 0;
 
@@ -49,7 +58,7 @@ void vKeyGetTask(void *pvParameters)
 		rprintf("%s, %x\n",__func__,k);
 		xTaskResumeAll();
 
-		xQueueSend(KeyPrcQueue,(void *)&k,wait);
+		xQueueSend(KeyPrcQueue,(void *)&k,10);
 	}
 }
 
@@ -77,15 +86,15 @@ void vKeyPrcTask(void *pvParameters)
 		if(r != pdPASS)
 			continue;
 		switch(k) {
-		case KEY2_ID:
+		case 0x01:
 			// TODO: add process code here
 			vKeyPrcFunction(k);
 			break;
-		case KEY3_ID:
+		case 0x02:
 			// TODO: add process code here
 			vKeyPrcFunction(k);
 			break;
-		case KEY4_ID:
+		case 0x04:
 			// TODO: add process code here
 			vKeyPrcFunction(k);
 			break;

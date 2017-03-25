@@ -17,8 +17,9 @@ DRV_COBJS := \
 	./drivers/$(CHIP_NAME)/stm32f10x_usart.o	\
 
 DEV_COBJS := \
-	./device/$(CHIP_NAME)/key.o	\
+	./device/$(CHIP_NAME)/sensor.o	\
 	./device/$(CHIP_NAME)/motor.o	\
+	./device/$(CHIP_NAME)/key.o	\
 	./device/$(CHIP_NAME)/infra.o	\
 	./device/$(CHIP_NAME)/speaker.o	\
 	./device/$(CHIP_NAME)/lcd_displib.o	\

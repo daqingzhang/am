@@ -1,13 +1,19 @@
 #ifndef __KEY_H__
 #define __KEY_H__
+#include <sensor.h>
 
-//#define CONFIG_DEBUG_KEY
+#define CONFIG_KEY_DEBUG
 
-#define KEY2_ID	(1<<0)
-#define KEY3_ID	(1<<1)
-#define KEY4_ID	(1<<2)
+#define KEY_DEV_NR 3
 
-int key_init(int key);
-unsigned int read_key(void);
+enum key_id
+{
+	KEY2_ID = 1,
+	KEY3_ID = 2,
+	KEY4_ID = 3,
+};
+
+int key_register(void);
+struct sensor_dev *key_get(int id);
 
 #endif

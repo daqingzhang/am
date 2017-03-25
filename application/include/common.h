@@ -3,6 +3,7 @@
 #include <core_reg.h>
 #include <serial.h>
 #include <timer.h>
+#include <string.h>
 
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(arr)	(sizeof(arr)/sizeof((arr)[0]))

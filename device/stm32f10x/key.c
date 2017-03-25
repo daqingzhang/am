@@ -1,50 +1,100 @@
-#include <string.h>
-#include <key.h>
-#include <timer.h>
-#include <serial.h>
+#include <common.h>
 #include <stm32f10x_gpio.h>
 #include <stm32f10x_rcc.h>
+#include <key.h>
 
 #define KEY_GPIO GPIOB
 #define K2_PIN GPIO_Pin_9
 #define K3_PIN GPIO_Pin_8
 #define K4_PIN GPIO_Pin_7
 
-#define KEY_PIN_MASK (K2_PIN | K3_PIN | K4_PIN)
+#ifdef CONFIG_KEY_DEBUG
+#define dprintf rprintf
+#else
+#define dprintf(...) do{}while(0)
+#endif
 
-int key_init(int key)
+struct key_gpio
 {
-	u16 pin = 0;
+	const char *name;
+	void *gpio;
+	unsigned int pin;
+};
+
+static struct key_gpio key_gp[] = {
+	{
+		.name = "KEY2",
+		.gpio = KEY_GPIO,
+		.pin  = K2_PIN,
+	},
+	{
+		.name = "KEY3",
+		.gpio = KEY_GPIO,
+		.pin  = K3_PIN,
+	},
+	{
+		.name = "KEY4",
+		.gpio = KEY_GPIO,
+		.pin  = K4_PIN,
+	},
+};
+
+static int key_init(struct sensor *sen, void *priv)
+{
+	struct key_gpio *gp = priv;
 	GPIO_InitTypeDef Init;
 
-	if(key & KEY2_ID)
-		pin |= K2_PIN;
-	if(key & KEY3_ID)
-		pin |= K3_PIN;
-	if(key & KEY4_ID)
-		pin |= K4_PIN;
-
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB,ENABLE);
-
-	Init.GPIO_Pin 	= pin;
+	Init.GPIO_Pin 	= gp->pin;
 	Init.GPIO_Mode 	= GPIO_Mode_IPU;
 	Init.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_Init(KEY_GPIO,&Init);
-#ifdef CONFIG_DEBUG_KEY
-	rprintf("%s, CRL = %x,CRH = %x\r\n",__func__,KEY_GPIO->CRL,GPIOB->CRH);
-#endif
+	GPIO_Init(gp->gpio,&Init);
+	dprintf("%s, %s pin = 0x%x\n",__func__, gp->name,gp->pin);
 	return 0;
 }
 
-unsigned int read_key(void)
+static int key_read(struct sensor *sen, void *priv)
 {
-	u32 t = 0;
+	struct key_gpio *gp = priv;
+	unsigned int t = 0;
 
-	t = GPIO_ReadInputData(KEY_GPIO);
-#ifdef CONFIG_DEBUG_KEY
-	rprintf("%s, value: %x\r\n",__func__,t);
-#endif
+	t = GPIO_ReadInputData(gp->gpio);
 	// pressed = 0,unpressed = 1
-	t = (KEY_PIN_MASK & (~t)) >> 7;
-	return t;
+	sen->value = (~t) & gp->pin;
+	dprintf("%s, %s value = 0x%x",__func__,gp->name,sen->value);
+	return 0;
+}
+
+static struct sensor_operations key_ops = {
+	.init = key_init,
+	.read = key_read,
+	.write = NULL,
+	.config = NULL,
+};
+
+static struct sensor_dev key_dev[KEY_DEV_NR];
+
+int key_register(void)
+{
+	int i,id;
+
+	for(i = 0;i < KEY_DEV_NR;i++) {
+		id = i + 1;
+		sensor_register(&key_dev[i],&key_ops,key_gp[i].name,
+					id,&key_gp[i]);
+		dprintf("%s, %s registered, id = %d\n",__func__,
+			key_gp[i].name, id);
+	}
+	return 0;
+}
+
+struct sensor_dev *key_get(int id)
+{
+	int i;
+
+	for(i = 0;i < KEY_DEV_NR;i++) {
+		if(key_dev[i].id == id)
+			return &key_dev[i];
+	}
+	return NULL;
 }

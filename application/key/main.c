@@ -7,8 +7,11 @@ int main(int argc, const char *argv[])
 	int r;
 
 	// config KEY
-	key_init(KEY2_ID | KEY3_ID | KEY4_ID);
-
+	r = key_register();
+	if(r) {
+		rprintf("register key device failed, %d\n",r);
+		goto loop;
+	}
 	// KEY task construction
 	r =xKeyTaskConstructor();
 	if(r) {
@@ -19,7 +22,7 @@ int main(int argc, const char *argv[])
 	rprintf("Press any KEY\n");
 	// call scheduler
 	vTaskStartScheduler();
-
+loop:
 	for(;;);
 	return 0;
 }
