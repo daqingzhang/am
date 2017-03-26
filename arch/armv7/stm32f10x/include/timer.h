@@ -8,13 +8,17 @@ enum {
 	TIMER4_ID = (1 << 3),
 };
 
-#define DELAY_TIMER TIMER4_ID
-
-#define CONFIG_TIMEOUT_CAP_PULSE 1000
+#define CONFIG_TIMER_DEBUG
+#define ms_to_us(ms) ((ms) * 1000)
 
 void timer_init(int id);
-int  timer_capture_pulse(int id, unsigned int *period, unsigned int *pos_width, int enable);
-int  timer_output_pulse(int id, unsigned int period, unsigned int pos_width,int enable);
-void timer_delay_us(int id, int us);
+int  timer_capture_pulse(int id, unsigned int *period,
+			unsigned int *pos_width, int enable);
+int  timer_output_pulse(int id, unsigned int period,
+			unsigned int pos_width,int enable);
+
+void timer_delay_us(void *priv, unsigned int us);
+void udelay(unsigned long us);
+void mdelay(unsigned long ms);
 
 #endif

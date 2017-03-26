@@ -15,7 +15,7 @@ int motor_register(struct motor_dev *d, struct motor_operations *ops,
 {
 	int retval = -2;
 
-	if((!d) || (!ops) || (inited))
+	if((!d) || (!ops) || (d->inited))
 		return -1;
 
 	d->name = name;
@@ -24,10 +24,10 @@ int motor_register(struct motor_dev *d, struct motor_operations *ops,
 	d->priv = priv;
 	d->inited = 1;
 
-	init_motor(&d->m,0,0,0,0);
+	init_motor(&d->motor,0,0,0,0);
 
 	if(d->ops->init)
-		retval = d->ops->init(&d->m, d->priv);
+		retval = d->ops->init(&d->motor, d->priv);
 	return retval;
 }
 
@@ -44,7 +44,7 @@ int motor_stop(struct motor_dev *d)
 	if(!d->inited)
 		return -1;
 	if(d->ops->stop)
-		retval = d->ops->stop(&d->m, d->priv);
+		retval = d->ops->stop(&d->motor, d->priv);
 	return retval;
 }
 
@@ -61,7 +61,7 @@ int motor_run_backward(struct motor_dev *d, unsigned int mm)
 	 pulse = mm + 10;
 
 	 if(d->ops->run)
-		 retval = d->ops->run(&d->m, d->priv, pulse, 0);
+		 retval = d->ops->run(&d->motor, d->priv, pulse, 0);
 	return retval;
 }
 
@@ -78,6 +78,6 @@ int motor_run_forward(struct motor_dev *d, unsigned int mm)
 	 pulse = mm + 10;
 
 	 if(d->ops->run)
-		 retval = d->ops->run(&d->m, d->priv, pulse, 1);
+		 retval = d->ops->run(&d->motor, d->priv, pulse, 1);
 	return retval;
 }

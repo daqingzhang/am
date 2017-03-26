@@ -1,7 +1,16 @@
+#include <common.h>
 #include <timer.h>
 #include <stm32f10x_tim.h>
 #include <stm32f10x_system.h>
 #include <stm32f10x_rcc.h>
+
+#define HWP_DLY_TIMER TIM4
+
+#ifdef CONFIG_TIMER_DEBUG
+#define dprintf rprintf
+#else
+#define dprintf(...) do{}while(0)
+#endif
 
 void timer_init(int id)
 {
@@ -17,42 +26,31 @@ void timer_init(int id)
 		return;
 }
 
-void timer_delay_us(int id, int us)
+void timer_delay_us(void *priv, unsigned int us)
 {
-	TIM_TypeDef *tim;
+	TIM_TypeDef *tim = priv;
 	u32 pscl = (clktree.apb1clk) / 1000000;
 
-	if(id == TIMER4_ID)
-		tim = TIM4;
-	else if(id == TIMER3_ID)
-		tim = TIM3;
-	else if(id == TIMER2_ID)
-		tim = TIM2;
-	else if(id == TIMER1_ID)
-		tim = TIM1;
-	else
-		tim = 0;
-	if(!tim)
-		return;
+	dprintf("%s, delay %d us\n",__func__,us);
+	do {
+		if(us > 0xffff) {
+			us   = us >> 1;
+			pscl = pscl << 1;
+		}
+	} while(us > 0xffff);
+	// CK_CNT = Fsrc / (PSCL + 1)
+	pscl -= 1;
+	dprintf("%s, us = %d, pscl = %d\n",__func__, us, pscl);
 
-	//downcounter,edge aligned
+	// down counter, center-aligned mode 3
 	tim->CR1 = TIM_CR1_DIR | TIM_CR1_CMS;
-
-	if(us <= 0xffff) {
-		tim->PSC = (u16)pscl;
-		tim->ARR = us;
-	} else {
-		tim->PSC = (u16)pscl << 2;
-		tim->ARR = us >> 2;
-	}
+	tim->PSC = (u16)pscl;
+	tim->ARR = (u16)us;
 	tim->EGR = TIM_EGR_UG;
-	//clear flag
 	tim->SR = ~(TIM_SR_UIF);
-	//run timer
 	tim->CR1 |= TIM_CR1_CEN;
 	while((tim->SR & TIM_SR_UIF) == 0);
-	tim->CR1 &= ~TIM_CR1_CEN;
-	//clear flag
+	tim->CR1 = 0;
 	tim->SR = ~(TIM_SR_UIF);
 }
 
@@ -68,11 +66,10 @@ int timer_output_pulse(int id, unsigned int period, unsigned int pos_width,int e
 
 void udelay(unsigned long us)
 {
-	timer_delay_us(DELAY_TIMER,us);
+	timer_delay_us(HWP_DLY_TIMER,us);
 }
 
 void mdelay(unsigned long ms)
 {
-	timer_delay_us(DELAY_TIMER,ms * 1000);
+	timer_delay_us(HWP_DLY_TIMER, ms_to_us(ms));
 }
-
