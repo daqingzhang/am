@@ -1,5 +1,4 @@
 #include <common.h>
-#include <string.h>
 #include <dc_motor.h>
 #include <task_motor.h>
 

@@ -1,6 +1,4 @@
-#include <string.h>
 #include <common.h>
-#include <stm32f10x_system.h>
 #include <task_motor.h>
 
 int main(int argc, const char *argv[])
