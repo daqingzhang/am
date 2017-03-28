@@ -10,8 +10,8 @@ OUT_DIR		:=out/$(APP_NAME)
 OUT_OBJS_DIR	:=$(OUT_DIR)/objs
 
 APP_DIR		:=application
-APP_INC		:=$(APP_DIR)/include
-APP_COMM	:=$(APP_DIR)/common
+APP_INC		:=include
+APP_COMM	:=common
 APP_TASK_DIR	:=$(APP_DIR)/$(APP_NAME)
 APP_TASK_INC	:=$(APP_DIR)/$(APP_NAME)/include
 DEV_DIR		:=device/$(CHIP_NAME)
@@ -154,7 +154,7 @@ clean:
 	rm -f $(TARGET_BIN_DUMP)
 	rm -f $(TARGET_HEX_DUMP)
 	rm -f application/$(APP_NAME)/*.o
-	rm -f application/common/*.o
+	rm -f common/*.o
 	rm -f arch/$(ARCH)/$(CHIP_NAME)/cpu/*.o
 	rm -f arch/$(ARCH)/$(CHIP_NAME)/lib/*.o
 	rm -f drivers/$(CHIP_NAME)/*.o

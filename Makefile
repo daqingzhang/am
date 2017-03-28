@@ -27,4 +27,4 @@ clean_vehicle:
 
 clean: cleankey cleanled clean_vehicle
 
-.PHONY: led key clean
+.PHONY: led key vehicle clean

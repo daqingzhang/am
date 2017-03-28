@@ -17,8 +17,6 @@ DRV_COBJS := \
 	./drivers/$(CHIP_NAME)/stm32f10x_usart.o	\
 
 DEV_COBJS := \
-	./device/$(CHIP_NAME)/sensor.o	\
-	./device/$(CHIP_NAME)/motor.o	\
 	./device/$(CHIP_NAME)/key.o	\
 	./device/$(CHIP_NAME)/dc_motor.o	\
 	./device/$(CHIP_NAME)/infra.o	\
@@ -37,33 +35,35 @@ SYS_COBJS := \
 	./system/$(OS_NAME)/Source/portable/MemMang/heap_2.o	\
 	./system/$(OS_NAME)/Source/portable/GCC/ARM_CM3/port.o	\
 
-APP_COBJS := \
-	./application/common/hook.o	\
-	./application/common/fsm_v2.o
+COMM_COBJS := \
+	./common/fsm_v2.o \
+	./common/sensor.o \
+	./common/motor.o \
+	./common/hook.o \
 
 ifneq ($(findstring led,$(APP_NAME)),)
-APP_COBJS += \
+APP_COBJS := \
 	./application/led/main.o	\
 	./application/led/led_fsm.o	\
 	./application/led/led_task.o
 endif
 
 ifneq ($(findstring key,$(APP_NAME)),)
-APP_COBJS += \
+APP_COBJS := \
 	./application/key/main.o	\
 	./application/key/key_task.o
 endif
 
 ifneq ($(findstring vehicle,$(APP_NAME)),)
-APP_COBJS += \
+APP_COBJS := \
 	./application/vehicle/main.o	\
 	./application/vehicle/task_motor.o
 endif
 
-
 COBJS	:= \
 	$(ARCH_COBJS)	\
 	$(DRV_COBJS)	\
+	$(COMM_COBJS)	\
 	$(DEV_COBJS)	\
 	$(SYS_COBJS)	\
 	$(APP_COBJS)	\
