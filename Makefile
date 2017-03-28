@@ -12,12 +12,19 @@ key: cleankey
 	mkdir -p $(REL_OUT) $(REL_OUT)/key $(REL_OUT)/key/objs
 	make -f Makefile.boot CHIP=$(CHIPS) SYSTEM=$(SYSTEMS) APPS=key
 
+vehicle: clean_vehicle
+	mkdir -p $(REL_OUT) $(REL_OUT)/key $(REL_OUT)/vehicle/objs
+	make -f Makefile.boot CHIP=$(CHIPS) SYSTEM=$(SYSTEMS) APPS=vehicle
+
 cleankey:
 	make -f Makefile.boot clean CHIP=$(CHIPS) SYSTEM=$(SYSTEMS) APPS=key
 
 cleanled:
 	make -f Makefile.boot clean CHIP=$(CHIPS) SYSTEM=$(SYSTEMS) APPS=led
 
-clean: cleankey cleanled
+clean_vehicle:
+	make -f Makefile.boot clean CHIP=$(CHIPS) SYSTEM=$(SYSTEMS) APPS=vehicle
+
+clean: cleankey cleanled clean_vehicle
 
 .PHONY: led key clean

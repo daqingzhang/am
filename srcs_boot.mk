@@ -20,6 +20,7 @@ DEV_COBJS := \
 	./device/$(CHIP_NAME)/sensor.o	\
 	./device/$(CHIP_NAME)/motor.o	\
 	./device/$(CHIP_NAME)/key.o	\
+	./device/$(CHIP_NAME)/dc_motor.o	\
 	./device/$(CHIP_NAME)/infra.o	\
 	./device/$(CHIP_NAME)/speaker.o	\
 	./device/$(CHIP_NAME)/lcd_displib.o	\
@@ -52,6 +53,13 @@ APP_COBJS += \
 	./application/key/main.o	\
 	./application/key/key_task.o
 endif
+
+ifneq ($(findstring vehicle,$(APP_NAME)),)
+APP_COBJS += \
+	./application/vehicle/main.o	\
+	./application/vehicle/task_motor.o
+endif
+
 
 COBJS	:= \
 	$(ARCH_COBJS)	\

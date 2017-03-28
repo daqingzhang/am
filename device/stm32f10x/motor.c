@@ -43,6 +43,7 @@ int motor_stop(struct motor_dev *d)
 
 	if(!d->inited)
 		return -1;
+
 	if(d->ops->stop)
 		retval = d->ops->stop(&d->motor, d->priv);
 	return retval;
@@ -55,13 +56,12 @@ int motor_run_backward(struct motor_dev *d, unsigned int mm)
 
 	if(!d->inited)
 		return -1;
-	/*
-	 * TODO: convert mm to pulse value
-	 */
-	 pulse = mm + 10;
 
-	 if(d->ops->run)
-		 retval = d->ops->run(&d->motor, d->priv, pulse, 0);
+	/* TODO: convert mm to pulse value */
+	pulse = mm + 10;
+
+	if(d->ops->run)
+		retval = d->ops->run(&d->motor, d->priv, pulse, 0);
 	return retval;
 }
 
@@ -72,12 +72,11 @@ int motor_run_forward(struct motor_dev *d, unsigned int mm)
 
 	if(!d->inited)
 		return -1;
-	/*
-	 * TODO: convert mm to pulse value
-	 */
-	 pulse = mm + 10;
 
-	 if(d->ops->run)
-		 retval = d->ops->run(&d->motor, d->priv, pulse, 1);
+	/* TODO: convert mm to pulse value */
+	pulse = mm + 10;
+
+	if(d->ops->run)
+		retval = d->ops->run(&d->motor, d->priv, pulse, 1);
 	return retval;
 }
