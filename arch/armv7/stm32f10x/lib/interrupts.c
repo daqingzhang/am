@@ -23,14 +23,7 @@ enum exception_id
 	EXCP_ID_EXT_INT,
 };
 
-static void bad_mode(void)
-{
-	rprintf("Hang ...\n");
-	while(1)
-		;
-}
-
-static const char *exception_vect_str[] =
+static const char *excp_vect_str[] =
 {
 	"rsv0",
 	"Reset",
@@ -51,7 +44,14 @@ static const char *exception_vect_str[] =
 	"Interrupts",
 };
 
-static void show_regs(const struct pt_regs *regs, const char *exception_str)
+static void bad_mode(int id)
+{
+	rprintf("exception: %s, Hang ...\n",excp_vect_str[id]);
+	while(1)
+	;
+}
+
+void show_regs(const struct pt_regs *regs, const char *exception_str)
 {
 	unsigned long flags;
 
@@ -89,59 +89,43 @@ void inerrupts_disable(void)
 
 void NMI_Handler(void)
 {
-	show_regs((const struct pt_regs *)GET_SP_ADDR(IRQ_FRAME_OFFS),
-			exception_vect_str[EXCP_ID_NMI]);
-	//bad_mode();
+	bad_mode(EXCP_ID_NMI);
 }
 
 void HardFault_Handler(void)
 {
-	show_regs((const struct pt_regs *)GET_SP_ADDR(IRQ_FRAME_OFFS),
-			exception_vect_str[EXCP_ID_HARD_FAULT]);
-	bad_mode();
+	bad_mode(EXCP_ID_HARD_FAULT);
 }
 
 void MemManage_Handler(void)
 {
-	show_regs((const struct pt_regs *)GET_SP_ADDR(IRQ_FRAME_OFFS),
-			exception_vect_str[EXCP_ID_MEM_MANAGE]);
-	bad_mode();
+	bad_mode(EXCP_ID_MEM_MANAGE);
 }
 
 void BusFault_Handler(void)
 {
-	show_regs((const struct pt_regs *)GET_SP_ADDR(IRQ_FRAME_OFFS),
-			exception_vect_str[EXCP_ID_BUS_FAULT]);
-	bad_mode();
+	bad_mode(EXCP_ID_BUS_FAULT);
 }
 
 void UsageFault_Handler(void)
 {
-	show_regs((const struct pt_regs *)GET_SP_ADDR(IRQ_FRAME_OFFS),
-			exception_vect_str[EXCP_ID_USAGE_FAULT]);
-	bad_mode();
+	bad_mode(EXCP_ID_USAGE_FAULT);
 }
 
 void DebugMon_Handler(void)
 {
-	show_regs((const struct pt_regs *)GET_SP_ADDR(IRQ_FRAME_OFFS),
-			exception_vect_str[EXCP_ID_DEBUG_MONITOR]);
-	bad_mode();
+	bad_mode(EXCP_ID_DEBUG_MONITOR);
 }
 
 #ifndef CONFIG_USE_FREERTOS
 void SVC_Handler(void)
 {
-	show_regs((const struct pt_regs *)__get_SP(),
-			exception_vect_str[EXCP_ID_NMI]);
-	bad_mode();
+	bad_mode(EXCP_ID_SVC);
 }
 
 void PendSV_Handler(void)
 {
-	show_regs((const struct pt_regs *)__get_SP(),
-			exception_vect_str[EXCP_ID_NMI]);
-	bad_mode();
+	bad_mode(EXCP_ID_PEND_SV);
 }
 
 void SysTick_Handler(void)
