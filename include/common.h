@@ -25,4 +25,9 @@ void udelay(unsigned long us);
 
 int interrupts_enable();
 void interrupts_disable();
+
+#ifndef printf
+#define printf rprintf
+#endif
+
 #endif

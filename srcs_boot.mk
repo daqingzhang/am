@@ -60,6 +60,12 @@ APP_COBJS := \
 	./application/vehicle/task_motor.o
 endif
 
+ifneq ($(findstring test,$(APP_NAME)),)
+APP_COBJS := \
+	./application/test/main.o	\
+	./application/test/test.o
+endif
+
 COBJS	:= \
 	$(ARCH_COBJS)	\
 	$(DRV_COBJS)	\
