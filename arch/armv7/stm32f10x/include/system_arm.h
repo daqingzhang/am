@@ -88,17 +88,13 @@ static inline void set_cr(unsigned int val)
 #define T_BIT		0x20
 #define F_BIT		0x40
 #define I_BIT		0x80
+#define CC_T_BIT	(1 << 24)
 #define CC_V_BIT	(1 << 28)
 #define CC_C_BIT	(1 << 29)
 #define CC_Z_BIT	(1 << 30)
 #define CC_N_BIT	(1 << 31)
 #define PCMASK		0
-
-#define CONFIG_ARMV7_CORTEX_M
-#ifdef CONFIG_ARMV7_CORTEX_M
-#define CC_T_BIT	(1 << 24)
 #define EXCP_ID_MASK	(0x1ff)
-#endif
 
 #ifndef __ASSEMBLY__
 
@@ -109,7 +105,7 @@ struct pt_regs {
 	long uregs[18];
 };
 
-#ifndef CONFIG_ARMV7_CORTEX_M
+#if 0
 #define ARM_cpsr	uregs[16]
 #define ARM_pc		uregs[15]
 #define ARM_lr		uregs[14]
@@ -128,9 +124,7 @@ struct pt_regs {
 #define ARM_r1		uregs[1]
 #define ARM_r0		uregs[0]
 #define ARM_ORIG_r0	uregs[17]
-
 #else
-
 #define ARM_cpsr	uregs[7]
 #define ARM_pc		uregs[6]
 #define ARM_lr		uregs[5]
@@ -139,8 +133,7 @@ struct pt_regs {
 #define ARM_r2		uregs[2]
 #define ARM_r1		uregs[1]
 #define ARM_r0		uregs[0]
-
-#endif /* CONFIG_ARMV7_CORTEX_M */
+#endif
 
 #endif	/* __ASSEMBLY__ */
 

@@ -8,7 +8,6 @@ enum {
 	TIMER4_ID = (1 << 3),
 };
 
-#define CONFIG_TIMER_DEBUG
 #define ms_to_us(ms) ((ms) * 1000)
 
 void timer_init(int id);

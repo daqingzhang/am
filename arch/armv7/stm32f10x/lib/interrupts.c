@@ -46,31 +46,29 @@ static const char *excp_vect_str[] =
 
 static void bad_mode(int id)
 {
-	rprintf("exception: %s, Hang ...\n",excp_vect_str[id]);
+	printf("exception: %s, Hang ...\n",excp_vect_str[id]);
 	while(1)
 	;
 }
 
-void show_regs(const struct pt_regs *regs, const char *exception_str)
+void show_regs(const struct pt_regs *regs)
 {
 	unsigned long flags;
 
 	flags = regs->ARM_cpsr;
 
-	rprintf("cpsr:%8x pc:%8x  lr:%8x r12: %8x\n",
+	printf("XPSR:%8x RetAddr:%8x  LR:%8x R12: %8x\n",
 		regs->ARM_cpsr, regs->ARM_pc, regs->ARM_lr, regs->ARM_r12);
 
-	rprintf("r3 : %8x  r2 : %8x  r1 : %8x  r0: %8x\n",
+	printf("R3 : %8x  R2 : %8x  R1 : %8x  R0: %8x\n",
 		regs->ARM_r3, regs->ARM_r2, regs->ARM_r1, regs->ARM_r0);
 
-	rprintf("Flags: %c%c%c%c%c\n",
+	printf("Flags: %c%c%c%c%c\n",
 		flags & CC_N_BIT ? 'N' : 'n',
 		flags & CC_Z_BIT ? 'Z' : 'z',
 		flags & CC_C_BIT ? 'C' : 'c',
 		flags & CC_V_BIT ? 'V' : 'v',
 		flags & CC_T_BIT ? 'T' : 't');
-
-	rprintf("%s ID: %3x\n", exception_str, flags & EXCP_ID_MASK);
 }
 
 #define IRQ_FRAME_OFFS	0x08
@@ -92,8 +90,9 @@ void NMI_Handler(void)
 	bad_mode(EXCP_ID_NMI);
 }
 
-void HardFault_Handler(void)
+void HardFault_Handler(void *regs_ptr)
 {
+	show_regs(regs_ptr);
 	bad_mode(EXCP_ID_HARD_FAULT);
 }
 
@@ -102,13 +101,15 @@ void MemManage_Handler(void)
 	bad_mode(EXCP_ID_MEM_MANAGE);
 }
 
-void BusFault_Handler(void)
+void BusFault_Handler(void *regs_ptr)
 {
+	show_regs(regs_ptr);
 	bad_mode(EXCP_ID_BUS_FAULT);
 }
 
-void UsageFault_Handler(void)
+void UsageFault_Handler(void *regs_ptr)
 {
+	show_regs(regs_ptr);
 	bad_mode(EXCP_ID_USAGE_FAULT);
 }
 

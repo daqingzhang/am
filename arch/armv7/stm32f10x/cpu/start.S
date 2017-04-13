@@ -11,10 +11,10 @@ _start:
 	.long	CONFIG_INIT_SP_ADDR  /* Top of Stack 	*/
 	.long	Reset_Handler         /* Reset Handler 	*/
 	.long	NMI_Handler           /* NMI Handler 	*/
-	.long	HardFault_Handler     /* Hard Fault Handler 	*/
+	.long	_HardFault_Handler     /* Hard Fault Handler 	*/
 	.long	MemManage_Handler     /* MPU Fault Handler 	*/
-	.long	BusFault_Handler      /* Bus Fault Handler 	*/
-	.long	UsageFault_Handler    /* Usage Fault Handler 	*/
+	.long	_BusFault_Handler      /* Bus Fault Handler 	*/
+	.long	_UsageFault_Handler    /* Usage Fault Handler 	*/
 	.long	0                     /* Reserved 	*/
 	.long	0                     /* Reserved 	*/
 	.long	0                     /* Reserved 	*/
@@ -139,6 +139,34 @@ clrbss_e:
 	/* jump into dead loop after returned from main */
 9:	nop
 	b	9b
+
+	.align 2
+	.thumb_func
+	.type _HardFault_Handler, %function
+_HardFault_Handler:
+	mov	r0, sp
+	bl	HardFault_Handler
+	b	handle_deadloop
+#if 0
+	ldr	r0, [sp,0x18]	/* get RetAddr */
+	mov	pc, r0		/* go back */
+#endif
+
+	.align 2
+	.thumb_func
+	.type _BusFault_Handler, %function
+_BusFault_Handler:
+	mov	r0, sp
+	bl	BusFault_Handler
+	b	handle_deadloop
+
+	.align 2
+	.thumb_func
+	.type _UsageFault_Handler, %function
+_UsageFault_Handler:
+	mov	r0, sp
+	bl	UsageFault_Handler
+	b	handle_deadloop
 
 	.align 2
 	.thumb_func

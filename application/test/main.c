@@ -11,11 +11,21 @@
 void serial_loopback(void);
 void leds_on(void);
 
+void trigger_swi(void)
+{
+	asm volatile("swi #4\n"
+			:
+			:
+			: "memory");
+}
+
 int main(int argc, const char *argv[])
 {
 	//system_systick_run(1);
 
 	printf("hello world\n");
+
+	trigger_swi();
 
 	leds_on();
 

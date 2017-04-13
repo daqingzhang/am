@@ -6,6 +6,8 @@
 
 #define HWP_DLY_TIMER TIM4
 
+//#define CONFIG_TIMER_DEBUG
+
 #ifdef CONFIG_TIMER_DEBUG
 #define dprintf rprintf
 #else

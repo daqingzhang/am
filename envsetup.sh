@@ -66,4 +66,9 @@ cdout()
 	cd $AM_OUT_PATH
 }
 
+ocdstart()
+{
+	openocd -f scripts/jlink.cfg -f scripts/stm32f1x.cfg
+}
+
 envprint
