@@ -11,7 +11,17 @@ struct clock_tree clktree = {
 
 static int set_system_clock(int clk);
 
-u32 system_get_cpuid(void)
+unsigned int system_get_cfsr(void)
+{
+	return SCB->CFSR;
+}
+
+unsigned int system_get_hfsr(void)
+{
+	return SCB->HFSR;
+}
+
+unsigned int system_get_cpuid(void)
 {
 	return SCB->CPUID;
 }

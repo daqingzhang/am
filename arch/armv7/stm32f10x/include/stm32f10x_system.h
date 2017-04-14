@@ -65,7 +65,9 @@ extern struct clock_tree clktree;
 					1 bits for subpriority */
 #define NVIC_PRIORITY_GRP4	(0x300) /*!< 4 bits for preemption priority
 					0 bits for subpriority */
-u32  system_get_cpuid(void);
+unsigned int system_get_cfsr(void);
+unsigned int system_get_hfsr(void);
+unsigned int system_get_cpuid(void);
 int  system_init_clock(void);
 void system_nmi_set_pending(void);
 void system_svc_set_pending(void);

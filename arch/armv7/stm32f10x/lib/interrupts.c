@@ -54,6 +54,8 @@ static void bad_mode(int id)
 void show_regs(const struct pt_regs *regs)
 {
 	unsigned long flags = regs->ARM_cpsr;
+	unsigned int hfsr = system_get_hfsr();
+	unsigned int cfsr = system_get_cfsr();
 
 	printf("XPSR:%8x RetAddr:%8x LR:%8x R12:%8x\n",
 		regs->ARM_cpsr, regs->ARM_pc, regs->ARM_lr, regs->ARM_r12);
@@ -65,6 +67,7 @@ void show_regs(const struct pt_regs *regs)
 		flags & CC_C_BIT ? 'C' : 'c',
 		flags & CC_V_BIT ? 'V' : 'v',
 		flags & CC_T_BIT ? 'T' : 't');
+	printf("HFSR:%8x    CFSR:%8x\n",hfsr,cfsr);
 }
 
 int interrupts_enable(void)
