@@ -53,16 +53,12 @@ static void bad_mode(int id)
 
 void show_regs(const struct pt_regs *regs)
 {
-	unsigned long flags;
+	unsigned long flags = regs->ARM_cpsr;
 
-	flags = regs->ARM_cpsr;
-
-	printf("XPSR:%8x RetAddr:%8x  LR:%8x R12: %8x\n",
+	printf("XPSR:%8x RetAddr:%8x LR:%8x R12:%8x\n",
 		regs->ARM_cpsr, regs->ARM_pc, regs->ARM_lr, regs->ARM_r12);
-
-	printf("R3 : %8x  R2 : %8x  R1 : %8x  R0: %8x\n",
+	printf("  R3:%8x      R2:%8x R1:%8x  R0:%8x\n",
 		regs->ARM_r3, regs->ARM_r2, regs->ARM_r1, regs->ARM_r0);
-
 	printf("Flags: %c%c%c%c%c\n",
 		flags & CC_N_BIT ? 'N' : 'n',
 		flags & CC_Z_BIT ? 'Z' : 'z',
@@ -70,9 +66,6 @@ void show_regs(const struct pt_regs *regs)
 		flags & CC_V_BIT ? 'V' : 'v',
 		flags & CC_T_BIT ? 'T' : 't');
 }
-
-#define IRQ_FRAME_OFFS	0x08
-#define GET_SP_ADDR(offs)	(__get_SP() + offs)
 
 int interrupts_enable(void)
 {
@@ -135,6 +128,6 @@ void SysTick_Handler(void)
 	unsigned int reg = SysTick->CTRL;
 
 	system_systick_clr_pending();
-	rprintf("%x, %d\n", reg,tick++);
+	printf("%x, %d\n", reg,tick++);
 }
 #endif

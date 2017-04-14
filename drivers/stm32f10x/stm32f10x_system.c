@@ -45,7 +45,8 @@ void system_softreset(void)
 {
 	__DSB();
 	__ISB();
-	SCB->AIRCR |= SCB_AIRCR_VECTRESET_Msk;
+//	SCB->AIRCR = AIRCR_VECTKEY_MASK | SCB_AIRCR_VECTRESET_Msk;
+	SCB->AIRCR = AIRCR_VECTKEY_MASK | SCB_AIRCR_SYSRESETREQ_Msk;
 	while(1);
 }
 

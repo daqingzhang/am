@@ -147,10 +147,13 @@ _HardFault_Handler:
 	mov	r0, sp
 	bl	HardFault_Handler
 	b	handle_deadloop
-#if 0
-	ldr	r0, [sp,0x18]	/* get RetAddr */
-	mov	pc, r0		/* go back */
-#endif
+
+#	ldr	lr, =0xfffffff9	/* return to thread mode,MSP */
+#	bx	lr
+#	ldr	lr, =0xfffffff1	/* return to handler mode, MSP */
+#	bx	lr
+#	ldr	r0, [sp,0x18]	/* get RetAddr */
+#	mov	pc, r0		/* go back */
 
 	.align 2
 	.thumb_func
