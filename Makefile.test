@@ -1,5 +1,4 @@
 CHIP_NAME	:=$(CHIP)
-OS_NAME		:=$(SYSTEM)
 APP_NAME	:=$(APPS)
 ARCH		:=armv7
 
@@ -21,11 +20,6 @@ DRV_INC		:=$(DRV_DIR)/include
 ARCH_INC	:=arch/$(ARCH)/$(CHIP_NAME)/include
 ARCH_CPU_INC	:=arch/$(ARCH)/$(CHIP_NAME)/cpu/include
 
-SYS_CFG_INC	:=system/$(OS_NAME)/config
-SYS_SRC_INC	:=system/$(OS_NAME)/Source/include
-SYS_PORT_INC	:=system/$(OS_NAME)/Source/portable/GCC/ARM_CM3
-SYS_MEM_INC	:=system/$(OS_NAME)/Source/portable/MemMang
-
 INCS		:= -I$(APP_DIR)
 INCS		+= -I$(APP_INC)
 INCS		+= -I$(APP_COMM)
@@ -37,10 +31,6 @@ INCS		+= -I$(DRV_DIR)
 INCS		+= -I$(DRV_INC)
 INCS		+= -I$(ARCH_INC)
 INCS		+= -I$(ARCH_CPU_INC)
-INCS		+= -I$(SYS_CFG_INC)
-INCS		+= -I$(SYS_SRC_INC)
-INCS		+= -I$(SYS_PORT_INC)
-INCS		+= -I$(SYS_MEM_INC)
 
 #==============================================================================
 # Target Files
@@ -83,13 +73,14 @@ OBJDUMP_OPTS	+= --section=.text --section=.test.startup --section=.data
 #==============================================================================
 TARGET_DEFS	:= -DHOST_DEBUG=1
 TARGET_DEFS	+= -DSTM32F10X_MD
-TARGET_DEFS	+= -DGCC_ARMCM3
-TARGET_DEFS	+= -DCONFIG_USE_FREERTOS
+
+#TARGET_DEFS	+= -DGCC_ARMCM3
+#TARGET_DEFS	+= -DCONFIG_USE_FREERTOS
 
 #==============================================================================
 # Source Files
 #==============================================================================
-include srcs_boot.mk
+include srcs_test.mk
 
 #==============================================================================
 # Entrance
@@ -150,7 +141,4 @@ clean:
 	rm -f arch/$(ARCH)/$(CHIP_NAME)/lib/*.o
 	rm -f drivers/$(CHIP_NAME)/*.o
 	rm -f device/$(CHIP_NAME)/*.o
-	rm -f system/$(OS_NAME)/Source/*.o
-	rm -f system/$(OS_NAME)/Source/portable/MemMang/*.o
-	rm -f system/$(OS_NAME)/Source/portable/GCC/ARM_CM3/*.o
 

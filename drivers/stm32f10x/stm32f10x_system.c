@@ -11,15 +11,37 @@ struct clock_tree clktree = {
 
 static int set_system_clock(int clk);
 
+/*
+ * system_get_cfsr - get configuration fault status register's value
+ *
+ * @despction
+ * This register's value is combined of bus fault,memory manage fault
+ * and usage fault register's value. All the bit field is specified as below:
+ * [31:16]	- usage fault value
+ * [15:8 ]	- bus fault value
+ * [7 :0 ]	- memory manage fault value
+ * @return: register's value
+ */
+
 unsigned int system_get_cfsr(void)
 {
 	return SCB->CFSR;
 }
 
+/*
+ * system_get_hfsr - get the hard fault register's value
+ * @return: register's value
+ */
+
 unsigned int system_get_hfsr(void)
 {
 	return SCB->HFSR;
 }
+
+/*
+ * system_get_cpuid - get cpu identify value
+ * @return: register's value
+ */
 
 unsigned int system_get_cpuid(void)
 {
@@ -58,6 +80,24 @@ void system_softreset(void)
 //	SCB->AIRCR = AIRCR_VECTKEY_MASK | SCB_AIRCR_VECTRESET_Msk;
 	SCB->AIRCR = AIRCR_VECTKEY_MASK | SCB_AIRCR_SYSRESETREQ_Msk;
 	while(1);
+}
+
+int system_set_exception_priority(enum exception_id id, u32 priority)
+{
+	switch(id) {
+	case EXCP_ID_MEM_MANAGE:
+	case EXCP_ID_BUS_FAULT:
+	case EXCP_ID_USAGE_FAULT:
+	case EXCP_ID_SVC:
+	case EXCP_ID_DEBUG_MONITOR:
+	case EXCP_ID_PEND_SV:
+	case EXCP_ID_SYS_TICK:
+	case EXCP_ID_EXT_INT:
+		SCB->SHP[id - 4] = priority & 0xff;
+		return 0;
+	default:
+		return -1;
+	}
 }
 
 int system_set_priority_group(u32 grp)
@@ -231,4 +271,3 @@ static int set_system_clock(int clk)
 
 	return 0;
 }
-

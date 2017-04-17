@@ -18,7 +18,7 @@ vehicle: clean_vehicle
 
 test: cleantest
 	mkdir -p $(REL_OUT) $(REL_OUT)/test $(REL_OUT)/test/objs
-	make -f Makefile.boot CHIP=$(CHIPS) SYSTEM=$(SYSTEMS) APPS=test
+	make -f Makefile.test CHIP=$(CHIPS) APPS=test
 
 cleankey:
 	make -f Makefile.boot clean CHIP=$(CHIPS) SYSTEM=$(SYSTEMS) APPS=key

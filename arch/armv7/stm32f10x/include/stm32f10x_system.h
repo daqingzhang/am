@@ -7,6 +7,27 @@
 #define assert_param(...) do{} while(0)
 #endif
 
+enum exception_id
+{
+	EXCP_ID_RSV0 = 0,
+	EXCP_ID_RESET,
+	EXCP_ID_NMI,
+	EXCP_ID_HARD_FAULT,
+	EXCP_ID_MEM_MANAGE,
+	EXCP_ID_BUS_FAULT,
+	EXCP_ID_USAGE_FAULT,
+	EXCP_ID_RSV1,
+	EXCP_ID_RSV2,
+	EXCP_ID_RSV3,
+	EXCP_ID_RSV4,
+	EXCP_ID_SVC,
+	EXCP_ID_DEBUG_MONITOR,
+	EXCP_ID_RSV5,
+	EXCP_ID_PEND_SV,
+	EXCP_ID_SYS_TICK,
+	EXCP_ID_EXT_INT,
+};
+
 #define CONFIG_SYSTICK_US(us) (CONFIG_SYSCLK / 1000000 * us)
 #define CONFIG_SYSTICK_MS(ms) (CONFIG_SYSCLK / 1000 * ms)
 
@@ -77,6 +98,7 @@ void system_systick_clr_pending(void);
 int  system_systick_config(u32 ticks);
 void system_systick_run(int yes);
 void system_softreset(void);
+int  system_set_exception_priority(enum exception_id id, u32 priority);
 int  system_set_priority_group(u32 grp);
 int  system_set_vectaddr(u32 base, u32 offset);
 int  system_set_low_power(u32 lp_mode, int lp_enable);
