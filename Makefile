@@ -1,8 +1,10 @@
+TOPDIR	:= $(CURDIR)
 REL_OUT	:=out
 CHIPS	:=stm32f10x
 SYSTEMS	:=FreeRTOS
 
 all:
+	@echo "TODIR=$(TOPDIR)"
 
 led: cleanled
 	mkdir -p $(REL_OUT) $(REL_OUT)/led $(REL_OUT)/led/objs
