@@ -1,0 +1,257 @@
+.
+├── app
+│   ├── init
+│   │   └── main.c
+│   ├── Makefile
+│   └── test
+│       ├── main.c
+│       └── test.c
+├── arch
+│   └── arm
+│       └── armv7
+│           └── st
+│               └── stm32f10x
+│                   ├── cpu
+│                   │   ├── inc
+│                   │   │   ├── arm_common_tables.h
+│                   │   │   ├── arm_math.h
+│                   │   │   ├── core_cm0.h
+│                   │   │   ├── core_cm0plus.h
+│                   │   │   ├── core_cm3.h
+│                   │   │   ├── core_cm4.h
+│                   │   │   ├── core_cm4_simd.h
+│                   │   │   ├── core_cmFunc.h
+│                   │   │   ├── core_cmInstr.h
+│                   │   │   ├── core_sc000.h
+│                   │   │   └── core_sc300.h
+│                   │   └── start.S
+│                   ├── hal
+│                   │   ├── inc
+│                   │   │   ├── misc.h
+│                   │   │   ├── stm32f10x_adc.h
+│                   │   │   ├── stm32f10x_bkp.h
+│                   │   │   ├── stm32f10x_can.h
+│                   │   │   ├── stm32f10x_cec.h
+│                   │   │   ├── stm32f10x_crc.h
+│                   │   │   ├── stm32f10x_dac.h
+│                   │   │   ├── stm32f10x_dbgmcu.h
+│                   │   │   ├── stm32f10x_dma.h
+│                   │   │   ├── stm32f10x_exti.h
+│                   │   │   ├── stm32f10x_flash.h
+│                   │   │   ├── stm32f10x_fsmc.h
+│                   │   │   ├── stm32f10x_gpio.h
+│                   │   │   ├── stm32f10x_i2c.h
+│                   │   │   ├── stm32f10x_iwdg.h
+│                   │   │   ├── stm32f10x_pwr.h
+│                   │   │   ├── stm32f10x_rcc.h
+│                   │   │   ├── stm32f10x_rtc.h
+│                   │   │   ├── stm32f10x_sdio.h
+│                   │   │   ├── stm32f10x_spi.h
+│                   │   │   ├── stm32f10x_tim.h
+│                   │   │   ├── stm32f10x_usart.h
+│                   │   │   └── stm32f10x_wwdg.h
+│                   │   ├── misc.c
+│                   │   ├── stm32f10x_adc.c
+│                   │   ├── stm32f10x_bkp.c
+│                   │   ├── stm32f10x_can.c
+│                   │   ├── stm32f10x_cec.c
+│                   │   ├── stm32f10x_crc.c
+│                   │   ├── stm32f10x_dac.c
+│                   │   ├── stm32f10x_dbgmcu.c
+│                   │   ├── stm32f10x_dma.c
+│                   │   ├── stm32f10x_exti.c
+│                   │   ├── stm32f10x_flash.c
+│                   │   ├── stm32f10x_fsmc.c
+│                   │   ├── stm32f10x_gpio.c
+│                   │   ├── stm32f10x_i2c.c
+│                   │   ├── stm32f10x_iwdg.c
+│                   │   ├── stm32f10x_pwr.c
+│                   │   ├── stm32f10x_rcc.c
+│                   │   ├── stm32f10x_rtc.c
+│                   │   ├── stm32f10x_sdio.c
+│                   │   ├── stm32f10x_spi.c
+│                   │   ├── stm32f10x_system.c
+│                   │   ├── stm32f10x_tim.c
+│                   │   ├── stm32f10x_usart.c
+│                   │   ├── stm32f10x_wwdg.c
+│                   │   └── system_stm32f10x.c
+│                   ├── lib
+│                   │   ├── board.c
+│                   │   ├── core_reg.S
+│                   │   ├── inc
+│                   │   │   ├── config.h
+│                   │   │   ├── core_reg.h
+│                   │   │   ├── serial.h
+│                   │   │   ├── stm32f10x.h
+│                   │   │   ├── stm32f10x_system.h
+│                   │   │   ├── system_arm.h
+│                   │   │   └── timer.h
+│                   │   ├── interrupts.c
+│                   │   ├── serial.c
+│                   │   ├── string.c
+│                   │   └── timer.c
+│                   └── Makefile
+├── common
+│   ├── fsm.c
+│   ├── fsm_v2.c
+│   ├── hook.c
+│   ├── inc
+│   │   ├── common.h
+│   │   ├── fsm.h
+│   │   ├── fsm_v2.h
+│   │   ├── motor.h
+│   │   └── sensor.h
+│   ├── Makefile
+│   ├── motor.c
+│   └── sensor.c
+├── device
+│   ├── dcmotor
+│   │   ├── main.c
+│   │   ├── task_motor.c
+│   │   └── task_motor.h
+│   ├── inc
+│   │   ├── dc_motor.h
+│   │   ├── infra.h
+│   │   ├── key.h
+│   │   ├── lcd.h
+│   │   ├── led.h
+│   │   ├── speaker.h
+│   │   └── step_motor.h
+│   ├── key
+│   │   ├── key_task.c
+│   │   ├── key_task.h
+│   │   └── main.c
+│   ├── led
+│   │   ├── led_fsm.c
+│   │   ├── led_task.c
+│   │   ├── led_task.h
+│   │   └── main.c
+│   ├── Makefile
+│   └── source
+│       ├── dc_motor.c
+│       ├── debug.c
+│       ├── infra.c
+│       ├── key.c
+│       ├── lcd.c
+│       ├── lcd_displib.c
+│       ├── led.c
+│       ├── speaker.c
+│       └── step_motor.c
+├── doc
+│   └── README.md
+├── drivers
+│   ├── adc
+│   │   └── core.c
+│   ├── clock
+│   │   └── core.c
+│   ├── dac
+│   │   └── core.c
+│   ├── flash
+│   │   └── core.c
+│   ├── gpio
+│   │   └── core.c
+│   ├── i2c
+│   │   └── core.c
+│   ├── iomux
+│   │   └── core.c
+│   ├── Makefile
+│   ├── pwm
+│   │   └── core.c
+│   ├── sdio
+│   │   └── core.c
+│   ├── serial
+│   │   └── core.c
+│   ├── spi
+│   │   └── core.c
+│   └── timer
+│       └── core.c
+├── envsetup.sh
+├── LICENSE
+├── Makefile
+├── Makefile.boot
+├── Makefile.test
+├── out
+│   └── test
+│       └── objs
+├── README.md
+├── scripts
+│   ├── linker
+│   │   └── linker_boot.ld
+│   └── ocd
+│       ├── jlink.cfg
+│       └── stm32f1x.cfg
+├── srcs_boot.mk
+├── srcs_test.mk
+├── structure.txt
+├── system
+│   ├── FreeRTOS
+│   │   ├── config
+│   │   │   └── FreeRTOSConfig.h
+│   │   └── Source
+│   │       ├── croutine.c
+│   │       ├── event_groups.c
+│   │       ├── include
+│   │       │   ├── croutine.h
+│   │       │   ├── deprecated_definitions.h
+│   │       │   ├── event_groups.h
+│   │       │   ├── FreeRTOS.h
+│   │       │   ├── list.h
+│   │       │   ├── mpu_prototypes.h
+│   │       │   ├── mpu_wrappers.h
+│   │       │   ├── portable.h
+│   │       │   ├── projdefs.h
+│   │       │   ├── queue.h
+│   │       │   ├── semphr.h
+│   │       │   ├── StackMacros.h
+│   │       │   ├── stdint.readme
+│   │       │   ├── task.h
+│   │       │   └── timers.h
+│   │       ├── list.c
+│   │       ├── portable
+│   │       │   ├── Common
+│   │       │   │   └── mpu_wrappers.c
+│   │       │   ├── GCC
+│   │       │   │   ├── ARM_CM0
+│   │       │   │   │   ├── port.c
+│   │       │   │   │   └── portmacro.h
+│   │       │   │   ├── ARM_CM3
+│   │       │   │   │   ├── port.c
+│   │       │   │   │   └── portmacro.h
+│   │       │   │   ├── ARM_CM3_MPU
+│   │       │   │   │   ├── port.c
+│   │       │   │   │   └── portmacro.h
+│   │       │   │   ├── ARM_CM4F
+│   │       │   │   │   ├── port.c
+│   │       │   │   │   └── portmacro.h
+│   │       │   │   ├── ARM_CM4_MPU
+│   │       │   │   │   ├── port.c
+│   │       │   │   │   └── portmacro.h
+│   │       │   │   └── ARM_CM7
+│   │       │   │       ├── r0p1
+│   │       │   │       │   ├── port.c
+│   │       │   │       │   └── portmacro.h
+│   │       │   │       └── ReadMe.txt
+│   │       │   ├── MemMang
+│   │       │   │   ├── heap_1.c
+│   │       │   │   ├── heap_2.c
+│   │       │   │   ├── heap_3.c
+│   │       │   │   ├── heap_4.c
+│   │       │   │   ├── heap_5.c
+│   │       │   │   └── ReadMe.url
+│   │       │   └── readme.txt
+│   │       ├── queue.c
+│   │       ├── readme.txt
+│   │       ├── tasks.c
+│   │       └── timers.c
+│   └── Makefile
+└── target
+    └── robot-a
+        ├── config
+        │   ├── device.mk
+        │   ├── driver.mk
+        │   ├── system.mk
+        │   └── target.mk
+        └── source
+            └── Makefile
+
+62 directories, 192 files
