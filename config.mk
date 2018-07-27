@@ -1,0 +1,13 @@
+
+CROSS_COMPILE	:= arm-none-eabi
+CC	:= $(CROSS_COMPILE)-gcc
+LD	:= $(CROSS_COMPILE)-ld
+AS	:= $(CROSS_COMPILE)-as
+AR	:= $(CROSS_COMPILE)-ar
+GDB	:= $(CROSS_COMPILE)-gdb
+OBJCOPY := $(CROSS_COMPILE)-objcopy
+OBJDUMP := $(CROSS_COMPILE)-objdump
+
+define cc_cmd
+	@echo $1	$2
+endef
