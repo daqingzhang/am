@@ -37,6 +37,7 @@
 *.map
 *.sec
 *.syms
+*.lst
 *.*.dump
 *.swp
 tags

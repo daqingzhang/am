@@ -14,9 +14,7 @@ SECTIONS
 {
 	.text : {
 		__isr_vectors_offs__ = . - 0x08000000;
-		KEEP(cpu/start.o		(.text))
-		KEEP(lib/core_reg.o		(.text))
-		KEEP(lib/interrupts.o	(.text))
+		KEEP(arch/arm/armv7/st/stm32f10x/cpu/start.o		(.text))
 		*(.text .text.*)
 		. = ALIGN(4);
 	} >flash

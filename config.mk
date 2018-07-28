@@ -9,5 +9,5 @@ OBJCOPY := $(CROSS_COMPILE)-objcopy
 OBJDUMP := $(CROSS_COMPILE)-objdump
 
 define cc_cmd
-	@echo $1	$2
+	$(ECHO) $1	$2
 endef

@@ -1,69 +1,58 @@
-chip_name=stm32f10x
-os=FreeRTOS
+#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$AM_DIR_TOP
 
 export AM_DIR_TOP=$(pwd)
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$AM_DIR_TOP
-export AM_ARCH_CPU_PATH=$AM_DIR_TOP/arch/armv7/$chip_name/cpu
-export AM_ARCH_LIB_PATH=$AM_DIR_TOP/arch/armv7/$chip_name/lib
-export AM_APP_PATH=$AM_DIR_TOP/application
-export AM_DEV_PATH=$AM_DIR_TOP/device/$chip_name
-export AM_DRV_PATH=$AM_DIR_TOP/drivers/$chip_name
-export AM_SYS_PATH=$AM_DIR_TOP/system/$os
+export AM_APP_PATH=$AM_DIR_TOP/app
+export AM_DEV_PATH=$AM_DIR_TOP/device
+export AM_DRV_PATH=$AM_DIR_TOP/drivers
+export AM_SYS_PATH=$AM_DIR_TOP/system
 export AM_OUT_PATH=$AM_DIR_TOP/out
+export AM_ARC_PATH=$AM_DIR_TOP/arch/arm/armv7/st/stm32f10x
 
 envprint()
 {
 	echo ""
-	echo "AM_DIR_TOP = $AM_DIR_TOP"
-	echo "LD_LIBRARY_PATH = $LD_LIBRARY_PATH"
-	echo "AM_ARCH_CPU_PATH = $AM_ARCH_CPU_PATH"
-	echo "AM_ARCH_LIB_PATH = $AM_ARCH_LIB_PATH"
 	echo "AM_APP_PATH = $AM_APP_PATH"
 	echo "AM_DEV_PATH = $AM_DEV_PATH"
 	echo "AM_DRV_PATH = $AM_DRV_PATH"
 	echo "AM_SYS_PATH = $AM_SYS_PATH"
 	echo "AM_OUT_PATH = $AM_OUT_PATH"
+	echo "AM_ARC_PATH = $AM_ARC_PATH"
 	echo ""
+}
+
+cdarch()
+{
+	cd ${AM_ARC_PATH}
 }
 
 cdsys()
 {
-	cd $AM_SYS_PATH
+	cd ${AM_SYS_PATH}
 }
 
 cddrv()
 {
-	cd $AM_DRV_PATH
+	cd ${AM_DRV_PATH}
 }
 
 cddev()
 {
-	cd $AM_DEV_PATH
+	cd ${AM_DEV_PATH}
 }
 
 cdapp()
 {
-	cd $AM_APP_PATH
-}
-
-cdcpu()
-{
-	cd $AM_ARCH_CPU_PATH
-}
-
-cdlib()
-{
-	cd $AM_ARCH_LIB_PATH
+	cd ${AM_APP_PATH}
 }
 
 croot()
 {
-	cd $AM_DIR_TOP
+	cd ${AM_DIR_TOP}
 }
 
 cdout()
 {
-	cd $AM_OUT_PATH
+	cd ${AM_OUT_PATH}
 }
 
 ocdstart()

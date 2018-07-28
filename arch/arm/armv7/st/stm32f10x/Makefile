@@ -1,55 +1,68 @@
 ifeq ($(TOPDIR),)
-$(error invalid TOPDIR=$(TOPDIR))
+$(error invalid TOPDIR)
 endif
 
-CPUDIR	:=$(CURDIR)/cpu
-HALDIR	:=$(CURDIR)/hal
-LIBDIR	:=$(CURDIR)/lib
+ifeq ($(OUTDIR),)
+$(error invalid OUTDIR)
+endif
+
+ifeq ($(TARGET),)
+$(error invalid TARGET)
+endif
+
+#####################################################################
+# ODIR	:=$(OUTDIR)/$(TARGET)/arch/$(ARCH)/$(CPU)/$(VENDOR)/$(CHIP)
+# ODIR	:=$(shell mkdir -p $(ODIR) && cd $(ODIR) && pwd)
+#
+# ifeq ($(wildcard $(ODIR)),)
+# $(error mkdir $(ODIR) failed)
+# endif
+#####################################################################
+
+#####################################################################
+CPUDIR	:=cpu
+HALDIR	:=hal
+LIBDIR	:=lib
 
 INC	:=-I$(CPUDIR)/inc
 INC	+=-I$(HALDIR)/inc
 INC	+=-I$(LIBDIR)/inc
 INC	+=-I$(TOPDIR)/common/inc
 
-ODIR	:=$(OUTDIR)/arch/$(ARCH)/$(CPU)/$(VENDOR)/$(CHIP)
-ODIR	:=$(shell mkdir -p $(ODIR) && cd $(ODIR) && pwd)
-
-ifeq ($(wildcard $(ODIR)),)
-$(error mkdir $(ODIR) failed)
-endif
-
-$(shell mkdir -p $(ODIR)/cpu)
-$(shell mkdir -p $(ODIR)/hal)
-$(shell mkdir -p $(ODIR)/lib)
+LIB	:=libarch.a
 
 AOBJS	:=$(patsubst %.S,%.o,$(wildcard $(CPUDIR)/*.S))
+AOBJS	+=$(patsubst %.S,%.o,$(wildcard $(HALDIR)/*.S))
+AOBJS	+=$(patsubst %.S,%.o,$(wildcard $(LIBDIR)/*.S))
+
 COBJS	:=$(patsubst %.c,%.o,$(wildcard $(CPUDIR)/*.c))
 COBJS	+=$(patsubst %.c,%.o,$(wildcard $(HALDIR)/*.c))
 COBJS	+=$(patsubst %.c,%.o,$(wildcard $(LIBDIR)/*.c))
+#####################################################################
 
 include $(TOPDIR)/config.mk
 
-CCFLAGS	+=-DSTM32F10X_MD $(INC)
-
-LIB	:=$(ODIR)/libarch.a
+CCFLAGS	+=$(INC) $(OS_FLAGS) -DSTM32F10X_MD
 
 all: $(LIB)
-	$(ECHO) "build $^ done"
+	$(ECHO) "build $(notdir $^) done"
 
 $(LIB): $(AOBJS) $(COBJS)
 	$(call cc_cmd,AR,$(notdir $@))
-	@$(AR) -r $@ $^
+	$(QUIET)$(AR) -r $@ $^
+	$(QUIET)$(AR) -d $@ start.o
 
 %.o: %.c
 	$(call cc_cmd,CC,$(notdir $@))
-	@$(CC) $(CCFLAGS) -c $< -o $@
+	$(QUIET)$(CC) $(CCFLAGS) -c $< -o $@
 
 %.o: %.S
 	$(call cc_cmd,CC,$(notdir $@))
-	@$(CC) $(CCFLAGS) -c $< -o $@
+	$(QUIET)$(CC) $(CCFLAGS) -c $< -o $@
 
 clean:
-	@rm -f $(LIB)
-	@rm -rf $(CPUDIR)/*.o $(HALDIR)/*.o $(LIBDIR)/*.o
+	$(QUIET)rm -f $(LIB)
+	$(QUIET)rm -rf $(COBJS) $(AOBJS)
+	$(ECHO) "clean done"
 
-.PHONY: all clean
+.PHONY: clean

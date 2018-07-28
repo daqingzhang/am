@@ -1,16 +1,16 @@
-V		?=1
 ARCH	?=arm
 CPU		?=armv7
 VENDOR	?=st
 CHIP	?=stm32f10x
+V		?=0
 USE_OS	?=0
 
-ifneq ($(V),1)
-ECHO	:=@\#
+ifeq ($(V),1)
 QUIET	:=
+ECHO	:=@\#
 else
-ECHO	:=@echo
 QUIET	:=@
+ECHO	:=@echo
 endif
 
 ifeq ($(MAKELEVEL),0)
@@ -55,18 +55,25 @@ include config.mk
 export CHIP ARCH CPU VENDOR
 
 ARCHDIR	:= arch/$(ARCH)/$(CPU)/$(VENDOR)/$(CHIP)
+APPDIR	:= app
+
 LIBDIR	:= $(ARCHDIR)
-#LIBDIR	+= app
+LIBDIR	+= $(APPDIR)
 #LIBDIR	+= device
 #LIBDIR	+= drivers
 #LIBDIR	+= system
 #LIBDIR	+= common
 #LIBDIR	+= target/$(TARGET)/source
 
+INC		:=-I$(ARCHDIR)/cpu/inc
+INC		+=-I$(ARCHDIR)/hal/inc
+INC		+=-I$(ARCHDIR)/lib/inc
+
 CCFLAGS		:= -g -mthumb -mcpu=cortex-m3 -march=armv7-m
 CCFLAGS		+= -O2 -Wall -Werror -static -fno-common -fno-builtin-printf
 
 LDFLAGS		:= -T $(ARCHDIR)/linker.ld
+LDFLAGS		+= $(INC) -L$(APPDIR) -L$(ARCHDIR)
 LDFLAGS		+= -Wl,-nostdlib,--relax,-Map=$(TARGET_MAP),--gc-sections
 LDFLAGS		+= -nostartfiles -ffast-math -lgcc
 
@@ -96,7 +103,10 @@ define sub-clean
 	done;
 endef
 
-all: $(TARGET_ELF)
+TARGET_ALL :=$(TARGET_HEX) $(TARGET_BIN) $(TARGET_ELF) \
+			$(TARGET_SYM) $(TARGET_LST) $(TARGET_SEC) $(TARGET_MAP)
+
+all: $(TARGET_ALL)
 	@echo "Build Done !"
 
 $(TARGET_SYM): $(TARGET_ELF)
@@ -116,11 +126,14 @@ $(TARGET_HEX): $(TARGET_ELF)
 
 $(TARGET_ELF):
 	$(call sub-make)
-#	$(CC) $^ -o $@ $(LDFLAGS)
+	$(CC) $(LDFLAGS) -o $@ \
+	$(ARCHDIR)/cpu/start.o \
+	-lapp -larch
 
-PHONY	+= clean
+PHONY	+= clean app arch
 
 clean:
 	$(call sub-clean, clean)
+	rm -rf $(TARGET_ALL)
 
 .PHONY:	$(PHONY)
