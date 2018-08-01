@@ -1,4 +1,3 @@
-
 CROSS_COMPILE	:= arm-none-eabi
 CC	:= $(CROSS_COMPILE)-gcc
 LD	:= $(CROSS_COMPILE)-ld

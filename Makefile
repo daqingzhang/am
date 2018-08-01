@@ -93,7 +93,7 @@ endif
 
 define sub-make
 	@for i in $(LIBDIR); do \
-		$(MAKE) -C $$i; \
+		$(MAKE) -C $$i -j4; \
 	done;
 endef
 
@@ -103,32 +103,31 @@ define sub-clean
 	done;
 endef
 
-TARGET_ALL :=$(TARGET_HEX) $(TARGET_BIN) $(TARGET_ELF) \
+TARGET_ALL :=$(TARGET_BIN) $(TARGET_HEX) $(TARGET_ELF) \
 			$(TARGET_SYM) $(TARGET_LST) $(TARGET_SEC) $(TARGET_MAP)
 
 all: $(TARGET_ALL)
-	@echo "Build Done !"
+	$(ECHO) "GEN $^"
+	$(ECHO) "Done !"
 
 $(TARGET_SYM): $(TARGET_ELF)
-	$(OBJDUMP) -t $< > $@
+	$(QUIET)$(OBJDUMP) -t $< > $@
 
 $(TARGET_SEC): $(TARGET_ELF)
-	$(OBJDUMP) -h $< > $@
+	$(QUIET)$(OBJDUMP) -h $< > $@
 
 $(TARGET_LST): $(TARGET_ELF)
-	$(OBJDUMP) $(DUMP_FLAGS) $< > $@
+	$(QUIET)$(OBJDUMP) $(DUMP_FLAGS) $< > $@
 
 $(TARGET_BIN): $(TARGET_ELF)
-	$(OBJCOPY) -O binary $< $@
+	$(QUIET)$(OBJCOPY) -O binary $< $@
 
 $(TARGET_HEX): $(TARGET_ELF)
-	$(OBJCOPY) -O ihex $< $@
+	$(QUIET)$(OBJCOPY) -O ihex $< $@
 
 $(TARGET_ELF):
 	$(call sub-make)
-	$(CC) $(LDFLAGS) -o $@ \
-	$(ARCHDIR)/cpu/start.o \
-	-lapp -larch
+	$(QUIET)$(CC) $(LDFLAGS) -o $@ $(ARCHDIR)/cpu/start.o -lapp -larch
 
 PHONY	+= clean app arch
 

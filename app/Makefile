@@ -10,28 +10,12 @@ ifeq ($(TARGET),)
 $(error invalid TARGET)
 endif
 
-
-###########################################################
-# ODIR	:=$(OUTDIR)/$(TARGET)/app
-# ODIR	:=$(shell mkdir -p $(ODIR) && cd $(ODIR) && pwd)
-# 
-# ifeq ($(wildcard $(ODIR)),)
-# $(error mkdir $(ODIR) failed)
-# endif
-# $(shell mkdir -p $(ODIR)/init)
-###########################################################
-
-###########################################################
-INC		:=-I$(TOPDIR)/common/inc
-INC		+=-I$(TOPDIR)/arch/$(ARCH)/$(CPU)/$(VENDOR)/$(CHIP)/lib/inc
-
-LIB		:=libapp.a
-
-SRCDIR	:=init
-AOBJS	:=$(patsubst %.S,%.o,$(wildcard $(SRCDIR)/*.S))
-COBJS	:=$(patsubst %.c,%.o,$(wildcard $(SRCDIR)/*.c))
-
+include $(CURDIR)/config.mk
 include $(TOPDIR)/config.mk
+
+ifeq ($(LIB),)
+$(error invalid LIB)
+endif
 
 CCFLAGS	+=$(INC)
 ###########################################################
