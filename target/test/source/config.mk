@@ -1,13 +1,4 @@
 ###########################################################
-# ODIR	:=$(OUTDIR)/$(TARGET)/app
-# ODIR	:=$(shell mkdir -p $(ODIR) && cd $(ODIR) && pwd)
-# 
-# ifeq ($(wildcard $(ODIR)),)
-# $(error mkdir $(ODIR) failed)
-# endif
-# $(shell mkdir -p $(ODIR)/init)
-
-###########################################################
 # TOPDIR:	top directory of project
 # INC:		directory of header file
 # LIB:		library name will be generated
@@ -17,9 +8,9 @@
 ###########################################################
 INC		:=-I$(TOPDIR)/common/inc
 INC		+=-I$(TOPDIR)/arch/$(ARCH)/$(CPU)/$(VENDOR)/$(CHIP)/lib/inc
-INC		+=-I$(CURDIR)/init
+INC		+=-I$(TOPDIR)/$(TARGET)/source
 
-LIB		:=libapp.a
+LIB		:=libtgt.a
 
-AOBJS	:=$(patsubst %.S,%.o,$(wildcard init/*.S))
-COBJS	:=$(patsubst %.c,%.o,$(wildcard init/*.c))
+AOBJS	:=$(patsubst %.S,%.o,$(wildcard *.S))
+COBJS	:=$(patsubst %.c,%.o,$(wildcard *.c))

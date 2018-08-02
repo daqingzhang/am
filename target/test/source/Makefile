@@ -1,3 +1,43 @@
+ifeq ($(TOPDIR),)
+$(error invalid TOPDIR)
+endif
 
-all:
-	@echo "build done"
+ifeq ($(OUTDIR),)
+$(error invalid OUTDIR)
+endif
+
+ifeq ($(TARGET),)
+$(error invalid TARGET)
+endif
+
+include $(CURDIR)/config.mk
+include $(TOPDIR)/config.mk
+
+ifeq ($(LIB),)
+$(error invalid LIB)
+endif
+
+CCFLAGS	+=$(INC)
+###########################################################
+
+all: $(LIB)
+	$(ECHO) "build $(notdir $^) done"
+
+$(LIB): $(AOBJS) $(COBJS)
+	$(call cc_cmd,AR,$(notdir $@))
+	$(QUIET)$(AR) -r $@ $^
+
+%.o: %.c
+	$(call cc_cmd,CC,$(notdir $@))
+	$(QUIET)$(CC) $(CCFLAGS) -c $< -o $@
+
+%.o: %.S
+	$(call cc_cmd,CC,$(notdir $@))
+	$(QUIET)$(CC) $(CCFLAGS) -c $< -o $@
+
+clean:
+	$(QUIET)rm -f $(LIB)
+	$(QUIET)rm -rf $(COBJS) $(AOBJS)
+	$(ECHO) "clean done"
+
+.PHONY: clean
