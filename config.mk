@@ -1,4 +1,9 @@
-CROSS_COMPILE	:= arm-none-eabi
+ifeq ($(ARCH),arm)
+CROSS_COMPILE	:=arm-none-eabi
+else
+CROSS_COMPILE	:=
+endif
+
 CC	:= $(CROSS_COMPILE)-gcc
 LD	:= $(CROSS_COMPILE)-ld
 AS	:= $(CROSS_COMPILE)-as
