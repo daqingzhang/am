@@ -4,31 +4,42 @@ ENTRY(_start)
 
 MEMORY
 {
-	flash (rx) : o = 0x08000000, l = 0x1f800 /* 126K FLASH */
-	ram   (rw) : o = 0x20000000, l = 0x5000  /* 20KB RAM */
+	flash (rx) : ORIGIN = 0x08000000, LENGTH = 0x1f800 /* 126K FLASH*/
+	ram   (rw) : ORIGIN = 0x20000000, LENGTH = 0x5000  /* 20KB RAM*/
 }
 
 ASSERT(ORIGIN(flash) == ALIGN(ORIGIN(flash), 0x80), "ERROR: flash memory is not aligned !");
 
 SECTIONS
 {
-	.text : {
-		__isr_vectors_offs__ = . - 0x08000000;
-		KEEP(arch/arm/armv7/st/stm32f10x/cpu/start.o		(.text))
-		*(.text .text.*)
+	.vect_table : {
+		__isr_vect_start__ = . ;
+		KEEP(*(.vect_table))
 		. = ALIGN(4);
+		__isr_vect_end__ = . ;
 	} >flash
-	__text_end__ = . ;
 
+	.text : AT (ADDR(.text)) {
+		__text_start__ = . ;
+		*(.text)
+		*(SORT_BY_NAME(.text.*))
+		. = ALIGN(4);
+		__text_end__ = . ;
+	} >flash
+
+	__rodata_start__ = . ;
 	.rodata : {
+		*(.g_rodata)
 		*(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*)))
 		. = ALIGN(4);
 	} >flash
 
+	__exidx_start = . ;
 	.ARM.exidx : {
 		*(.ARM.exidx*)
 		*(.gnu.linkonce.armexidx.*)
 	} >flash
+	__exidx_end = . ;
 
 	.rel.dyn : {
 		. = ALIGN(4);
@@ -43,12 +54,13 @@ SECTIONS
 	.data : AT (__rodata_end__) {
 		. = ALIGN(4);
 		__data_start__ = . ;
-		*(.data .data.*)
-		*(.ram)
-		*(.ramfunc*)
+		*(.data)
+		*(SORT_BY_NAME(.data.*))
+		*(.text_sram)
+		*(SORT_BY_NAME(.text_sram.*))
 		. = ALIGN(4);
 		__data_end__ = . ;
-	} >ram /* AT>flash */
+	} >ram
 
 	.bss (NOLOAD) : {
 		__bss_start__ = . ;
@@ -62,7 +74,24 @@ SECTIONS
 	} >ram
 	__ram_end__ = . ;
 
-	_end = . ;
+	.stack_dummy (.) (COPY) : {
+		. = 0x1000 ;
+		. = ALIGN(8);
+	} > ram
+
+	.gdata (.) (COPY) : {
+		. = 0x100;
+		. = ALIGN(4);
+	} >ram
+
+    __StackTop = ORIGIN(ram) + LENGTH(ram) - SIZEOF(.gdata);
+	__StackLimit = __StackTop - SIZEOF(.stack_dummy) ;
+
+    __gdata_start = ORIGIN(ram) + LENGTH(ram) - SIZEOF(.gdata);
+	__gdata_end = ORIGIN(ram) + LENGTH(ram);
+	__gdata_size = SIZEOF(.gdata);
+
+	__free_ram = __StackLimit - __ram_end__;
 
 	/DISCARD/ : { *(.note.GNU-stack) }
 	/DISCARD/ : { *(.gnu_debuglink) }
@@ -75,6 +104,7 @@ SECTIONS
 */
 }
 
+ASSERT(__StackLimit > __ram_end__, "region RAM overflowed with stack");
 ASSERT(__flash_end__ < (ORIGIN(flash) + LENGTH(flash)), "ERROR: no enough space for store code in FLASH !");
 ASSERT(__ram_end__ < (ORIGIN(ram) + LENGTH(ram)), "ERROR: no enough space for store data in RAM!");
 

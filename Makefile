@@ -1,8 +1,10 @@
-# Echo
 #################################################################################
 Version :=1.0
-
-V	?=0
+ARCH	?=arm
+CPU		?=
+VENDOR	?=
+CHIP	?=stm32f10x
+V		?=0
 
 ifeq ($(V),1)
 QUIET	:=
@@ -50,19 +52,6 @@ include target/$(T)/target.mk
 
 # Target
 #################################################################################
-ifeq ($(ARCH),)
-$(error {ARCH} should be defined in target.mk)
-endif
-ifeq ($(CPU),)
-$(error {CPU} should be defined in target.mk)
-endif
-ifeq ($(VENDOR),)
-$(error {VENDOR} should be defined in target.mk)
-endif
-ifeq ($(CHIP),)
-$(error {CHIP} should be defined in target.mk)
-endif
-
 export ARCH CPU VENDOR CHIP
 
 DEBUG	 ?=1
@@ -82,8 +71,6 @@ endif
 
 export OS_FLAGS
 
-include config.mk
-
 # Compile Flags
 #################################################################################
 export TARGET=$(T)
@@ -96,7 +83,12 @@ TARGET_SYM	:= $(TARGET).syms
 TARGET_SEC	:= $(TARGET).sec
 TARGET_LST	:= $(TARGET).lst
 
-ARCHDIR	:= arch/$(ARCH)/$(CPU)/$(VENDOR)/$(CHIP)
+
+export CHIP ARCH CPU VENDOR
+
+include config.mk
+
+ARCHDIR	:= arch/$(CHIP)
 APPDIR	:= app
 TGTDIR	:= target/$(TARGET)/src
 

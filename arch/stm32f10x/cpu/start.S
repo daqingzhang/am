@@ -3,12 +3,13 @@
 	.syntax	unified
 	.arch armv7-m
 	.cpu cortex-m3
+	.section .vect_table, "ax", %progbits
 	.thumb
 
 	.align 2
 	.globl _start
 _start:
-	.long	CONFIG_INIT_SP_ADDR  /* Top of Stack 	*/
+	.long	__StackTop  /* Top of Stack 	*/
 	.long	Reset_Handler         /* Reset Handler 	*/
 	.long	NMI_Handler           /* NMI Handler 	*/
 	.long	_HardFault_Handler     /* Hard Fault Handler 	*/
@@ -85,7 +86,7 @@ _start:
 	.long	Default_Handler /* DMA2_CH3_Handler	*/
 	.long	Default_Handler /* DMA2_CH4_CH5_Handler */
 
-	.balignl 512,0xdeadbeef	/* aligned multiple of 512 B, fill long word 0xdeadbeef */
+	.balignl 512,0xDEADBEEF	/* aligned multiple of 512 B, fill long word 0xdeadbeef */
 	/*.balignw 512,0xdead*/ /* aligned multiple of 512 B, fill word 0xdead */
 	/*.align	9*/ 	/* aligned 2^9 B, fill 0 */
 

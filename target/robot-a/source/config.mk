@@ -7,7 +7,7 @@
 
 ###########################################################
 INC		:=-I$(TOPDIR)/common/inc
-INC		+=-I$(TOPDIR)/arch/$(CHIP)/lib/inc
+INC		+=-I$(TOPDIR)/arch/$(ARCH)/$(CPU)/$(VENDOR)/$(CHIP)/lib/inc
 INC		+=-I$(TOPDIR)/$(TARGET)/source
 
 LIB		:=libtgt.a
