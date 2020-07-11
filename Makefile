@@ -1,11 +1,4 @@
-#################################################################################
-Version :=1.0
-ARCH	?=arm
-CPU		?=
-VENDOR	?=
-CHIP	?=stm32f10x
 V		?=0
-
 ifeq ($(V),1)
 QUIET	:=
 ECHO	:=@\#
@@ -13,19 +6,21 @@ else
 QUIET	:=@
 ECHO	:=@echo
 endif
-
 export ECHO QUIET
+
+MK_INFO ?=1
 
 # Directory
 #################################################################################
+T	?=__default_tgt
 ifeq ($(T),)
-$(error target {T} is not specified, please select a target in $(CURDIR)/target/ )
+$(error target {T} is not specified, please select a target in $(CURDIR)/config/ )
 endif
 
-ifeq ($(wildcard target/$(T)),)
-$(error invalid target T=$(T), please select a target in $(CURDIR)/target/ )
+ifeq ($(wildcard config/$(T)),)
+$(error invalid target T=$(T), please select a target in $(CURDIR)/config/ )
 endif
-
+export TARGET :=$(T)
 
 ifeq ($(MAKELEVEL),0)
 TOPDIR	:=$(CURDIR)
@@ -45,84 +40,102 @@ $(error mkdir OUTDIR failed)
 else
 $(info OUTDIR=$(OUTDIR) done)
 endif
-
 export TOPDIR OUTDIR
-
-include target/$(T)/target.mk
-
-# Target
-#################################################################################
-export ARCH CPU VENDOR CHIP
-
-DEBUG	 ?=1
-DEBUG_MK ?=1
-
-export DEBUG
-
-OS_TYPE ?=FREERTOS
-USE_OS	?=0
-
-ifneq ($(USE_OS),0)
-OS_FLAGS	:= -DGCC_ARMCM3
-OS_FLAGS	+= -D$(OS_TYPE)
-else
-OS_FLAGS	:=
-endif
-
-export OS_FLAGS
 
 # Compile Flags
 #################################################################################
-export TARGET=$(T)
+COMM_FLAGS	:=
 
-TARGET_ELF	:= $(TARGET).elf
-TARGET_BIN	:= $(TARGET).bin
-TARGET_HEX	:= $(TARGET).hex
-TARGET_MAP	:= $(TARGET).map
-TARGET_SYM	:= $(TARGET).syms
-TARGET_SEC	:= $(TARGET).sec
-TARGET_LST	:= $(TARGET).lst
+include config/$(T)/target.mk
 
+ARCH	?=arm
 
-export CHIP ARCH CPU VENDOR
+ifeq ($(CHIP),stm32f10x)
+CPU		:=ARM_CM3
+COMM_FLAGS 	+=-DSTM32F10X_MD
+COMM_FLAGS	+= -mthumb -mcpu=cortex-m3 -march=armv7-m
+else
+$(error "unknown CHIP=$(CHIP)")
+endif
+export ARCH CPU
+
+ifeq ($(DEBUG),1)
+COMM_FLAGS	+=-DDEBUG
+endif
+
+OS_TYPE ?=FreeRTOS
+ifeq ($(USE_OS),1)
+ifeq ($(CHIP),stm32f10x)
+COMM_FLAGS	+= -DGCC_ARMCM3
+endif
+COMM_FLAGS	+= -D$(OS_TYPE)
+
+ifeq ($(OS_TYPE),FreeRTOS)
+COMM_FLAGS  += -I$(TOPDIR)/system/FreeRTOS/config \
+	-I$(TOPDIR)/system/FreeRTOS/Source/include \
+	-I$(TOPDIR)/system/FreeRTOS/Source/portable/GCC/$(CPU) \
+
+endif
+lib-dir +=system
+endif
+
+TARGET_ELF	:= $(T).elf
+TARGET_BIN	:= $(T).bin
+TARGET_HEX	:= $(T).hex
+TARGET_MAP	:= $(T).map
+TARGET_SYM	:= $(T).syms
+TARGET_SEC	:= $(T).sec
+TARGET_LST	:= $(T).lst
 
 include config.mk
 
 ARCHDIR	:= arch/$(CHIP)
-APPDIR	:= app
-TGTDIR	:= target/$(TARGET)/src
 
-LIBDIR	:= $(ARCHDIR) $(APPDIR) $(TGTDIR)
+lib-dir	+= \
+	app \
+	config/$(T) \
+	$(ARCHDIR) \
 
-INC	:=-I$(ARCHDIR)/cpu/inc
-INC	+=-I$(ARCHDIR)/hal/inc
-INC	+=-I$(ARCHDIR)/lib/inc
+INC	:= \
+	-I$(TOPDIR)/$(ARCHDIR)/cpu/inc \
+	-I$(TOPDIR)/$(ARCHDIR)/hal/inc \
+	-I$(TOPDIR)/$(ARCHDIR)/lib/inc \
+	-I$(TOPDIR)/$(ARCHDIR) \
+	-I$(TOPDIR)/app \
+	-I$(TOPDIR)/config/$(T) \
+	-I$(TOPDIR)/common/inc \
 
-CCFLAGS	:= -g
-ifeq ($(ARCH),arm)
-CCFLAGS	+= -mthumb -mcpu=cortex-m3 -march=armv7-m
-endif
-CCFLAGS	+= -O2 -Wall -Werror -static -fno-common -fno-builtin-printf
+INC_LD	:= \
+	-Lapp \
+	-Lconfig/$(T) \
+	-L$(ARCHDIR) \
 
-LDFLAGS		:= -T $(ARCHDIR)/linker.ld
-LDFLAGS		+= $(INC) -L$(APPDIR) -L$(ARCHDIR) -L$(TGTDIR)
+LDFLAGS		:=
+LDFLAGS		+= $(INC) $(INC_LD) $(LIB_LDFLAGS)
+LDFLAGS		+= -T $(ARCHDIR)/linker.ld
 LDFLAGS		+= -Wl,-nostdlib,--relax,-Map=$(OUTDIR)/$(TARGET_MAP),--gc-sections
 LDFLAGS		+= -nostartfiles -ffast-math -lgcc
 
-DUMP_FLAGS	:= --disassemble-all
+DUMP_FLAGS  :=
+DUMP_FLAGS	+= --disassemble-all
 DUMP_FLAGS	+= --section=.text --section=.test.startup --section=.data
 
-export CCFLAGS LDFLAGS DUMP_FLAGS
+CCFLAGS	:=
+CCFLAGS += $(INC) $(COMM_FLAGS) $(KBUILD_CFLAGS)
+CCFLAGS	+= -g -O2 -Wall -Werror -static -fno-common -fno-builtin-printf
+
+CPPFLAGS	:= $(INC) $(COMM_FLAGS) $(KBUILD_CPPFLAGS)
+
+export CCFLAGS CPPFLAGS LDFLAGS DUMP_FLAGS
 
 # Compile Commands
 #################################################################################
-ifeq ($(DEBUG_MK),1)
+ifeq ($(MK_INFO),1)
 $(info )
 $(info TOPDIR=$(TOPDIR))
 $(info OUTDIR=$(OUTDIR))
 $(info TARGET=$(TARGET))
 $(info ARCH=$(ARCH) CPU=$(CPU) VENDOR=$(VENDOR) CHIP=$(CHIP))
-$(info OS_FLAGS=$(OS_FLAGS))
 $(info CCFLAGS=$(CCFLAGS))
 $(info LDFLAGS=$(LDFLAGS))
 $(info DUMP_FLAGS=$(DUMP_FLAGS))
@@ -130,13 +143,13 @@ $(info )
 endif
 
 define sub-make
-	@for i in $(LIBDIR); do \
+	@for i in $(lib-dir); do \
 		$(MAKE) -C $$i -j4; \
 	done;
 endef
 
 define sub-clean
-	@for i in $(LIBDIR); do \
+	@for i in $(lib-dir); do \
 		$(MAKE) -C $$i $1; \
 	done;
 endef

@@ -1,11 +1,17 @@
 include $(TOPDIR)/config.mk
 
 ###########################################################
-LIB		:=libapp.a
+# TOPDIR:	top directory of project
+# INC:		directory of header file
+# LIB:		library name will be generated
+# AOBJS:	object file name by assembler source file
+# COBJS:	object file name by c source file
 
-AOBJS	:=$(patsubst %.S,%.o,$(wildcard init/*.S))
-COBJS	:=$(patsubst %.c,%.o,$(wildcard init/*.c))
-CCFLAGS	+=-Iinit
+###########################################################
+LIB		:=libtgt.a
+AOBJS	:=$(patsubst %.S,%.o,$(wildcard *.S))
+COBJS	:=$(patsubst %.c,%.o,$(wildcard *.c))
+
 ###########################################################
 
 all: $(LIB)

@@ -1,23 +1,15 @@
-ifeq ($(TOPDIR),)
-$(error invalid TOPDIR)
-endif
-
-ifeq ($(OUTDIR),)
-$(error invalid OUTDIR)
-endif
-
-ifeq ($(TARGET),)
-$(error invalid TARGET)
-endif
-
-include $(CURDIR)/config.mk
 include $(TOPDIR)/config.mk
 
-ifeq ($(LIB),)
-$(error invalid LIB)
-endif
+#####################################################################
+LIB	:=libarch.a
 
-CCFLAGS	+=$(INC) $(OS_FLAGS) -DSTM32F10X_MD
+AOBJS	:=$(patsubst %.S,%.o,$(wildcard cpu/*.S))
+AOBJS	+=$(patsubst %.S,%.o,$(wildcard hal/*.S))
+AOBJS	+=$(patsubst %.S,%.o,$(wildcard lib/*.S))
+
+COBJS	:=$(patsubst %.c,%.o,$(wildcard cpu/*.c))
+COBJS	+=$(patsubst %.c,%.o,$(wildcard hal/*.c))
+COBJS	+=$(patsubst %.c,%.o,$(wildcard lib/*.c))
 #####################################################################
 
 all: $(LIB)
