@@ -4,10 +4,13 @@ include $(TOPDIR)/config.mk
 LIB	:=libos.a
 
 #AOBJS	+=$(patsubst %.S,%.o,$(wildcard lib/*.S))
+CCFLAGS += -I../platform/$(VENDOR)/$(CHIP)/lib/inc
 
+ifeq ($(OS_TYPE), FreeRTOS)
 COBJS	:=$(patsubst %.c,%.o,$(wildcard FreeRTOS/Source/portable/GCC/ARM_CM3/*.c))
 COBJS	:=$(patsubst %.c,%.o,$(wildcard FreeRTOS/Source/*.c))
-#####################################################################
+endif
+$(info "OS_TYPE=$(OS_TYPE)")
 
 all: $(LIB)
 	$(ECHO) "build $(notdir $^) done"

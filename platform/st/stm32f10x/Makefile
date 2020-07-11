@@ -1,7 +1,9 @@
 include $(TOPDIR)/config.mk
 
+CCFLAGS += -Ihal/inc -Ilib/inc -I$(TOPDIR)/app
+
 #####################################################################
-LIB	:=libarch.a
+LIB	:=libplat.a
 
 AOBJS	:=$(patsubst %.S,%.o,$(wildcard cpu/*.S))
 AOBJS	+=$(patsubst %.S,%.o,$(wildcard hal/*.S))

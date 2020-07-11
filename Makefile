@@ -11,7 +11,7 @@ export ECHO QUIET
 MK_INFO ?=1
 
 # Directory
-#################################################################################
+###########################################################################
 T	?=__default_tgt
 ifeq ($(T),)
 $(error target {T} is not specified, please select a target in $(CURDIR)/config/ )
@@ -43,41 +43,40 @@ endif
 export TOPDIR OUTDIR
 
 # Compile Flags
-#################################################################################
+##########################################################################
 COMM_FLAGS	:=
 
 include config/$(T)/target.mk
+include config/common.mk
 
-ARCH	?=arm
+PLATDIR	?= platform/$(VENDOR)/$(CHIP)
+export VENDOR CHIP CPU
+export ARCH	?=arm
 
-ifeq ($(CHIP),stm32f10x)
-CPU		:=ARM_CM3
-COMM_FLAGS 	+=-DSTM32F10X_MD
-COMM_FLAGS	+= -mthumb -mcpu=cortex-m3 -march=armv7-m
-else
-$(error "unknown CHIP=$(CHIP)")
-endif
-export ARCH CPU
+lib-dir	+= \
+	config/$(T) \
+	$(PLATDIR) \
+	$(core-y) \
 
+COMM_FLAGS += $(KBUILD_CFLAGS) $(KBUILD_CPPFLAGS)
 ifeq ($(DEBUG),1)
 COMM_FLAGS	+=-DDEBUG
 endif
 
 OS_TYPE ?=FreeRTOS
 ifeq ($(USE_OS),1)
-ifeq ($(CHIP),stm32f10x)
-COMM_FLAGS	+= -DGCC_ARMCM3
-endif
 COMM_FLAGS	+= -D$(OS_TYPE)
 
 ifeq ($(OS_TYPE),FreeRTOS)
 COMM_FLAGS  += -I$(TOPDIR)/system/FreeRTOS/config \
 	-I$(TOPDIR)/system/FreeRTOS/Source/include \
 	-I$(TOPDIR)/system/FreeRTOS/Source/portable/GCC/$(CPU) \
+	-I$(TOPDIR)/system \
 
 endif
 lib-dir +=system
 endif
+export OS_TYPE
 
 TARGET_ELF	:= $(T).elf
 TARGET_BIN	:= $(T).bin
@@ -89,47 +88,34 @@ TARGET_LST	:= $(T).lst
 
 include config.mk
 
-ARCHDIR	:= arch/$(CHIP)
-
-lib-dir	+= \
-	app \
-	config/$(T) \
-	$(ARCHDIR) \
-
-INC	:= \
-	-I$(TOPDIR)/$(ARCHDIR)/cpu/inc \
-	-I$(TOPDIR)/$(ARCHDIR)/hal/inc \
-	-I$(TOPDIR)/$(ARCHDIR)/lib/inc \
-	-I$(TOPDIR)/$(ARCHDIR) \
-	-I$(TOPDIR)/app \
-	-I$(TOPDIR)/config/$(T) \
+INC += \
+	-I$(TOPDIR)/platform/cmsis/inc \
+	-I$(TOPDIR)/$(PLATDIR)/lib/inc \
 	-I$(TOPDIR)/common/inc \
 
 INC_LD	:= \
 	-Lapp \
 	-Lconfig/$(T) \
-	-L$(ARCHDIR) \
+	-L$(PLATDIR) \
+	-Lsystem \
 
-LDFLAGS		:=
-LDFLAGS		+= $(INC) $(INC_LD) $(LIB_LDFLAGS)
-LDFLAGS		+= -T $(ARCHDIR)/linker.ld
-LDFLAGS		+= -Wl,-nostdlib,--relax,-Map=$(OUTDIR)/$(TARGET_MAP),--gc-sections
-LDFLAGS		+= -nostartfiles -ffast-math -lgcc
+LDFLAGS		+= $(INC) $(INC_LD) $(LIB_LDFLAGS) \
+	-T $(TOPDIR)/scripts/linker/$(LINKER_FILE) \
+	-Wl,-nostdlib,--relax,-Map=$(OUTDIR)/$(TARGET_MAP),--gc-sections \
+	-nostartfiles -ffast-math -lgcc \
 
-DUMP_FLAGS  :=
-DUMP_FLAGS	+= --disassemble-all
-DUMP_FLAGS	+= --section=.text --section=.test.startup --section=.data
+DUMP_FLAGS	+= --disassemble-all \
+	--section=.text --section=.test.startup --section=.data \
 
-CCFLAGS	:=
-CCFLAGS += $(INC) $(COMM_FLAGS) $(KBUILD_CFLAGS)
-CCFLAGS	+= -g -O2 -Wall -Werror -static -fno-common -fno-builtin-printf
+CCFLAGS += $(INC) $(COMM_FLAGS) \
+	-g -O2 -Wall -Werror -static -fno-common -fno-builtin-printf
 
-CPPFLAGS	:= $(INC) $(COMM_FLAGS) $(KBUILD_CPPFLAGS)
+CPPFLAGS += $(INC) $(COMM_FLAGS) $(KBUILD_CPPFLAGS)
 
 export CCFLAGS CPPFLAGS LDFLAGS DUMP_FLAGS
 
 # Compile Commands
-#################################################################################
+########################################################################
 ifeq ($(MK_INFO),1)
 $(info )
 $(info TOPDIR=$(TOPDIR))
@@ -178,10 +164,10 @@ $(TARGET_HEX): $(TARGET_ELF)
 
 $(TARGET_ELF):
 	$(call sub-make)
-	$(QUIET)$(CC) $(LDFLAGS) -o $(OUTDIR)/$@ $(ARCHDIR)/cpu/start.o \
-			-lapp -larch -ltgt
+	$(QUIET)$(CC) $(LDFLAGS) -o $(OUTDIR)/$@ $(PLATDIR)/cpu/start.o \
+			-lapp -lplat -ltgt -los
 
-PHONY	+= clean app arch
+PHONY	+= clean app platform
 
 clean:
 	$(call sub-clean, clean)

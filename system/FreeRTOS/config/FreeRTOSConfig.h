@@ -71,7 +71,10 @@
 #define FREERTOS_CONFIG_H
 
 /* Library includes. */
+#if defined(CHIP_STM32F10X)
 #include <stm32f10x_system.h>
+#define CONFIG_USE_FREERTOS
+#endif
 
 /*-----------------------------------------------------------
  * Application specific definitions.
@@ -89,7 +92,9 @@
 #define configUSE_PREEMPTION			1
 #define configUSE_IDLE_HOOK			1
 #define configUSE_TICK_HOOK			1
+#if defined(CHIP_STM32F10X)
 #define configCPU_CLOCK_HZ			( ( unsigned long ) CONFIG_SYSCLK )	
+#endif
 #define configTICK_RATE_HZ			( ( TickType_t ) 100 )
 #define configMAX_PRIORITIES			( 5 )
 #define configMINIMAL_STACK_SIZE		( ( unsigned short ) 128 )
