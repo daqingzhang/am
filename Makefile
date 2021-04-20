@@ -44,39 +44,44 @@ export TOPDIR OUTDIR
 
 # Compile Flags
 ##########################################################################
-COMM_FLAGS	:=
+core-y		:=
+CFLAGS		:=
+KBUILD_CFLAGS	:=
+KBUILD_CPPFLAGS	:=
+LIB_LDFLAGS	:=
+COMMON_FLAGS	:=
+lib-dir		:=
 
 include config/$(T)/target.mk
 include config/common.mk
 
 PLATDIR	?= platform/$(VENDOR)/$(CHIP)
 export VENDOR CHIP CPU
-export ARCH	?=arm
 
-lib-dir	+= \
-	config/$(T) \
-	$(PLATDIR) \
-	$(core-y) \
+include compile.mk
 
-COMM_FLAGS += $(KBUILD_CFLAGS) $(KBUILD_CPPFLAGS)
-ifeq ($(DEBUG),1)
-COMM_FLAGS	+=-DDEBUG
+CFLAGS +=$(COMMON_FLAGS) $(KBUILD_CFLAGS) \
+	-I$(TOPDIR)/platform/cmsis/inc \
+	-I$(TOPDIR)/$(PLATDIR)/lib/inc \
+	-I$(TOPDIR)/common/inc \
+
+lib-dir	+= app/ platform/ $(core-y)
+ifneq ($(core-y),)
+lib-dir	+= $(core-y)
 endif
 
-OS_TYPE ?=FreeRTOS
-ifeq ($(USE_OS),1)
-COMM_FLAGS	+= -D$(OS_TYPE)
-
+ifeq ($(RTOS),1)
+lib-dir +=system/
 ifeq ($(OS_TYPE),FreeRTOS)
-COMM_FLAGS  += -I$(TOPDIR)/system/FreeRTOS/config \
+CFLAGS  += -I$(TOPDIR)/system/FreeRTOS/config \
 	-I$(TOPDIR)/system/FreeRTOS/Source/include \
 	-I$(TOPDIR)/system/FreeRTOS/Source/portable/GCC/$(CPU) \
 	-I$(TOPDIR)/system \
 
 endif
-lib-dir +=system
 endif
-export OS_TYPE
+
+lib-dir :=$(strip $(lib-dir))
 
 TARGET_ELF	:= $(T).elf
 TARGET_BIN	:= $(T).bin
@@ -86,33 +91,24 @@ TARGET_SYM	:= $(T).syms
 TARGET_SEC	:= $(T).sec
 TARGET_LST	:= $(T).lst
 
-include config.mk
-
-INC += \
-	-I$(TOPDIR)/platform/cmsis/inc \
-	-I$(TOPDIR)/$(PLATDIR)/lib/inc \
-	-I$(TOPDIR)/common/inc \
-
-INC_LD	:= \
+LDFLAGS := \
 	-Lapp \
 	-Lconfig/$(T) \
 	-L$(PLATDIR) \
 	-Lsystem \
 
-LDFLAGS		+= $(INC) $(INC_LD) $(LIB_LDFLAGS) \
+
+LDFLAGS := $(CFLAGS) $(LIB_LDFLAGS) \
 	-T $(TOPDIR)/scripts/linker/$(LINKER_FILE) \
 	-Wl,-nostdlib,--relax,-Map=$(OUTDIR)/$(TARGET_MAP),--gc-sections \
 	-nostartfiles -ffast-math -lgcc \
 
-DUMP_FLAGS	+= --disassemble-all \
+
+DPFLAGS := --disassemble-all \
 	--section=.text --section=.test.startup --section=.data \
 
-CCFLAGS += $(INC) $(COMM_FLAGS) \
-	-g -O2 -Wall -Werror -static -fno-common -fno-builtin-printf
 
-CPPFLAGS += $(INC) $(COMM_FLAGS) $(KBUILD_CPPFLAGS)
-
-export CCFLAGS CPPFLAGS LDFLAGS DUMP_FLAGS
+export CFLAGS LDFLAGS
 
 # Compile Commands
 ########################################################################
@@ -122,15 +118,15 @@ $(info TOPDIR=$(TOPDIR))
 $(info OUTDIR=$(OUTDIR))
 $(info TARGET=$(TARGET))
 $(info ARCH=$(ARCH) CPU=$(CPU) VENDOR=$(VENDOR) CHIP=$(CHIP))
-$(info CCFLAGS=$(CCFLAGS))
+$(info CFLAGS=$(CFLAGS))
 $(info LDFLAGS=$(LDFLAGS))
-$(info DUMP_FLAGS=$(DUMP_FLAGS))
+$(info DPFLAGS=$(DPFLAGS))
 $(info )
 endif
 
 define sub-make
 	@for i in $(lib-dir); do \
-		$(MAKE) -C $$i -j4; \
+		$(MAKE) -C $$i -j8; \
 	done;
 endef
 
@@ -140,8 +136,13 @@ define sub-clean
 	done;
 endef
 
-TARGETS :=$(TARGET_BIN) $(TARGET_HEX) $(TARGET_ELF) \
-			$(TARGET_SYM) $(TARGET_LST) $(TARGET_SEC)
+lib-files := $(subst /,.a,$(strip $(lib-dir)))
+lib-files := $(addprefix l, $(lib-files))
+
+$(info lib-dir=$(lib-dir))
+$(info lib-files=$(lib-files))
+
+TARGETS :=$(TARGET_BIN) $(TARGET_HEX) $(TARGET_ELF) $(TARGET_SYM) $(TARGET_LST) $(TARGET_SEC)
 
 all: $(TARGETS)
 	$(ECHO) "GEN $^"
@@ -154,7 +155,7 @@ $(TARGET_SEC): $(TARGET_ELF)
 	$(QUIET)$(OBJDUMP) -h $(OUTDIR)/$< > $(OUTDIR)/$@
 
 $(TARGET_LST): $(TARGET_ELF)
-	$(QUIET)$(OBJDUMP) $(DUMP_FLAGS) $(OUTDIR)/$< > $(OUTDIR)/$@
+	$(QUIET)$(OBJDUMP) $(DPFLAGS) $(OUTDIR)/$< > $(OUTDIR)/$@
 
 $(TARGET_BIN): $(TARGET_ELF)
 	$(QUIET)$(OBJCOPY) -O binary $(OUTDIR)/$< $(OUTDIR)/$@
@@ -164,8 +165,7 @@ $(TARGET_HEX): $(TARGET_ELF)
 
 $(TARGET_ELF):
 	$(call sub-make)
-	$(QUIET)$(CC) $(LDFLAGS) -o $(OUTDIR)/$@ $(PLATDIR)/cpu/start.o \
-			-lapp -lplat -ltgt -los
+	$(QUIET)$(CC) $(LDFLAGS) -o $(OUTDIR)/$@ $(PLATDIR)/cpu/start.o $(lib-files)
 
 PHONY	+= clean app platform
 

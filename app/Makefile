@@ -1,31 +1,29 @@
-include $(TOPDIR)/config.mk
+include $(TOPDIR)/compile.mk
 
-###########################################################
-LIB		:=libapp.a
+lib-y := $(addsuffix .a,$(addprefix lib,$(notdir $(CURDIR))))
 
-AOBJS	:=$(patsubst %.S,%.o,$(wildcard init/*.S))
-COBJS	:=$(patsubst %.c,%.o,$(wildcard init/*.c))
-CCFLAGS	+=-Iinit
-###########################################################
+obj-y +=$(patsubst %.S,%.o,$(wildcard init/*.S))
+obj-y +=$(patsubst %.c,%.o,$(wildcard init/*.c))
 
-all: $(LIB)
+CFLAGS	+=-Iinit/
+
+all: $(lib-y)
 	$(ECHO) "build $(notdir $^) done"
 
-$(LIB): $(AOBJS) $(COBJS)
+$(lib-y): $(obj-y)
 	$(call cc_cmd,AR,$(notdir $@))
 	$(QUIET)$(AR) -r $@ $^
 
 %.o: %.c
 	$(call cc_cmd,CC,$(notdir $@))
-	$(QUIET)$(CC) $(CCFLAGS) -c $< -o $@
+	$(QUIET)$(CC) $(CFLAGS) -c $< -o $@
 
 %.o: %.S
 	$(call cc_cmd,CC,$(notdir $@))
-	$(QUIET)$(CC) $(CCFLAGS) -c $< -o $@
+	$(QUIET)$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	$(QUIET)rm -f $(LIB)
-	$(QUIET)rm -rf $(COBJS) $(AOBJS)
+	$(QUIET)rm -f $(lib-y) init/*.o
 	$(ECHO) "clean done"
 
 .PHONY: clean

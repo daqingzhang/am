@@ -1,6 +1,6 @@
 #ifndef __COMMON_H__
 #define __COMMON_H__
-#include <core_reg.h>
+//#include <core_reg.h>
 #include <serial.h>
 #include <timer.h>
 #include <string.h>
