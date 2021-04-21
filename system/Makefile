@@ -1,36 +1,33 @@
-include $(TOPDIR)/config.mk
-
-#####################################################################
-LIB	:=libos.a
-
-#AOBJS	+=$(patsubst %.S,%.o,$(wildcard lib/*.S))
-CCFLAGS += -I../platform/$(VENDOR)/$(CHIP)/lib/inc
+include $(TOPDIR)/compile.mk
 
 ifeq ($(OS_TYPE), FreeRTOS)
-COBJS	:=$(patsubst %.c,%.o,$(wildcard FreeRTOS/Source/portable/GCC/ARM_CM3/*.c))
-COBJS	:=$(patsubst %.c,%.o,$(wildcard FreeRTOS/Source/*.c))
+obj-y	:=$(patsubst %.c,%.o,$(wildcard FreeRTOS/Source/portable/GCC/ARM_CM3/*.c))
+obj-y	:=$(patsubst %.c,%.o,$(wildcard FreeRTOS/Source/*.c))
 endif
 $(info "OS_TYPE=$(OS_TYPE)")
 
-all: $(LIB)
+CFLAGS += -I../platform/$(VENDOR)/$(CHIP)/lib/inc
+
+lib-y	:= $(LIB_FILE)
+
+all: $(lib-y)
 	$(ECHO) "build $(notdir $^) done"
 
-$(LIB): $(AOBJS) $(COBJS)
+$(lib-y): $(obj-y)
 	$(call cc_cmd,AR,$(notdir $@))
 	$(QUIET)$(AR) -r $@ $^
 	$(QUIET)$(AR) -d $@ start.o
 
 %.o: %.c
 	$(call cc_cmd,CC,$(notdir $@))
-	$(QUIET)$(CC) $(CCFLAGS) -c $< -o $@
+	$(QUIET)$(CC) $(CFLAGS) -c $< -o $@
 
 %.o: %.S
 	$(call cc_cmd,CC,$(notdir $@))
-	$(QUIET)$(CC) $(CCFLAGS) -c $< -o $@
+	$(QUIET)$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	$(QUIET)rm -f $(LIB)
-	$(QUIET)rm -rf $(COBJS) $(AOBJS)
+	$(QUIET)rm -f $(lib-y) $(obj-y)
 	$(ECHO) "clean done"
 
 .PHONY: clean

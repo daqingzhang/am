@@ -65,7 +65,7 @@ CFLAGS +=$(COMMON_FLAGS) $(KBUILD_CFLAGS) \
 	-I$(TOPDIR)/$(PLATDIR)/lib/inc \
 	-I$(TOPDIR)/common/inc \
 
-lib-dir	+= app/ platform/ $(core-y)
+lib-dir	+= app/ platform/
 ifneq ($(core-y),)
 lib-dir	+= $(core-y)
 endif
@@ -82,6 +82,7 @@ endif
 endif
 
 lib-dir :=$(strip $(lib-dir))
+$(info lib-dir=$(lib-dir))
 
 TARGET_ELF	:= $(T).elf
 TARGET_BIN	:= $(T).bin
@@ -136,10 +137,8 @@ define sub-clean
 	done;
 endef
 
-lib-files := $(subst /,.a,$(strip $(lib-dir)))
-lib-files := $(addprefix l, $(lib-files))
-
-$(info lib-dir=$(lib-dir))
+export LIB_FILE ?= builtin.a
+lib-files := $(addsuffix $(LIB_FILE),$(lib-dir))
 $(info lib-files=$(lib-files))
 
 TARGETS :=$(TARGET_BIN) $(TARGET_HEX) $(TARGET_ELF) $(TARGET_SYM) $(TARGET_LST) $(TARGET_SEC)
@@ -167,7 +166,7 @@ $(TARGET_ELF):
 	$(call sub-make)
 	$(QUIET)$(CC) $(LDFLAGS) -o $(OUTDIR)/$@ $(PLATDIR)/cpu/start.o $(lib-files)
 
-PHONY	+= clean app platform
+PHONY	+= clean app platform system common
 
 clean:
 	$(call sub-clean, clean)

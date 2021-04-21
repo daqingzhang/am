@@ -1,11 +1,11 @@
 include $(TOPDIR)/compile.mk
 
-lib-y := $(addsuffix .a,$(addprefix lib,$(notdir $(CURDIR))))
-
 obj-y +=$(patsubst %.S,%.o,$(wildcard init/*.S))
 obj-y +=$(patsubst %.c,%.o,$(wildcard init/*.c))
 
 CFLAGS	+=-Iinit/
+
+lib-y :=$(LIB_FILE)
 
 all: $(lib-y)
 	$(ECHO) "build $(notdir $^) done"
@@ -23,7 +23,7 @@ $(lib-y): $(obj-y)
 	$(QUIET)$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	$(QUIET)rm -f $(lib-y) init/*.o
+	$(QUIET)rm -f $(lib-y) $(obj-y)
 	$(ECHO) "clean done"
 
 .PHONY: clean
