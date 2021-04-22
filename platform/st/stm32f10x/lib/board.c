@@ -6,7 +6,7 @@ void board_init(void)
 	int retval = 0;
 	unsigned int cpuid,prigrp;
 
-	__disable_irq();
+	interrupts_disable();
 
 	// init system clock
 	retval = system_init_clock();
@@ -49,7 +49,7 @@ void board_init(void)
 	timer_init(TIMER1_ID | TIMER2_ID | TIMER3_ID | TIMER4_ID);
 	printf("timer inited\n");
 
-	__enable_irq();
+	interrupts_enable();
 
 	printf("%s done! \r\n",__func__);
 }

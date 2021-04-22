@@ -9,7 +9,7 @@ obj-y +=$(patsubst %.c,%.o,$(wildcard $(VENDOR)/$(CHIP)/lib/*.c))
 obj-y +=$(patsubst %.c,%.o,$(wildcard main/*.c))
 
 CFLAGS += -I$(VENDOR)/$(CHIP)/hal/inc \
-	-I$(VENDOR)/$(CHIP)/lib/inc \
+	-I$(VENDOR)/$(CHIP)/inc \
 	-I$(TOPDIR)/app \
 
 lib-y :=$(LIB_FILE)

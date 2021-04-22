@@ -49,15 +49,14 @@ void show_regs(const struct pt_regs *regs)
 	printf("HFSR:%8x    CFSR:%8x\n",hfsr,cfsr);
 }
 
-int interrupts_enable(void)
+void interrupts_enable(void)
 {
-	__enable_irq();
-	return 0;
+//	__enable_irq();
 }
 
-void inerrupts_disable(void)
+void interrupts_disable(void)
 {
-	__disable_irq();
+//	__disable_irq();
 }
 
 void NMI_Handler(void)

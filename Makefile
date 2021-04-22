@@ -29,7 +29,7 @@ TOPDIR	:=$(shell pwd)
 endif
 
 ifeq ($(O),)
-O	:=out
+O	?=out
 endif
 
 OUTDIR	:=$(shell mkdir -p $(O)/$(T) && cd $(O)/$(T) && pwd)
@@ -44,13 +44,13 @@ export TOPDIR OUTDIR
 
 # Compile Flags
 ##########################################################################
-core-y		:=
-CFLAGS		:=
+core-y			:=
+lib-dir			:=
+CFLAGS			:=
 KBUILD_CFLAGS	:=
 KBUILD_CPPFLAGS	:=
-LIB_LDFLAGS	:=
+LIB_LDFLAGS		:=
 COMMON_FLAGS	:=
-lib-dir		:=
 
 include config/$(T)/target.mk
 include config/common.mk
@@ -62,23 +62,12 @@ include compile.mk
 
 CFLAGS +=$(COMMON_FLAGS) $(KBUILD_CFLAGS) \
 	-I$(TOPDIR)/platform/cmsis/inc \
-	-I$(TOPDIR)/$(PLATDIR)/lib/inc \
-	-I$(TOPDIR)/common/inc \
+	-I$(TOPDIR)/$(PLATDIR)/inc \
+	-I$(TOPDIR)/common \
 
-lib-dir	+= app/ platform/
+lib-dir	+= app/ platform/ system/
 ifneq ($(core-y),)
 lib-dir	+= $(core-y)
-endif
-
-ifeq ($(RTOS),1)
-lib-dir +=system/
-ifeq ($(OS_TYPE),FreeRTOS)
-CFLAGS  += -I$(TOPDIR)/system/FreeRTOS/config \
-	-I$(TOPDIR)/system/FreeRTOS/Source/include \
-	-I$(TOPDIR)/system/FreeRTOS/Source/portable/GCC/$(CPU) \
-	-I$(TOPDIR)/system \
-
-endif
 endif
 
 lib-dir :=$(strip $(lib-dir))
@@ -92,14 +81,8 @@ TARGET_SYM	:= $(T).syms
 TARGET_SEC	:= $(T).sec
 TARGET_LST	:= $(T).lst
 
-LDFLAGS := \
-	-Lapp \
-	-Lconfig/$(T) \
-	-L$(PLATDIR) \
-	-Lsystem \
-
-
-LDFLAGS := $(CFLAGS) $(LIB_LDFLAGS) \
+LDFLAGS :=$(addprefix -L,$(lib-dir))
+LDFLAGS += $(CFLAGS) $(LIB_LDFLAGS) -Lconfig/$(T) -L$(PLATDIR) \
 	-T $(TOPDIR)/scripts/linker/$(LINKER_FILE) \
 	-Wl,-nostdlib,--relax,-Map=$(OUTDIR)/$(TARGET_MAP),--gc-sections \
 	-nostartfiles -ffast-math -lgcc \
@@ -137,6 +120,12 @@ define sub-clean
 	done;
 endef
 
+define print-targets
+	@for i in $(TARGETS); do \
+		echo "GEN $$i"; \
+	done
+endef
+
 export LIB_FILE ?= builtin.a
 lib-files := $(addsuffix $(LIB_FILE),$(lib-dir))
 $(info lib-files=$(lib-files))
@@ -144,7 +133,7 @@ $(info lib-files=$(lib-files))
 TARGETS :=$(TARGET_BIN) $(TARGET_HEX) $(TARGET_ELF) $(TARGET_SYM) $(TARGET_LST) $(TARGET_SEC)
 
 all: $(TARGETS)
-	$(ECHO) "GEN $^"
+	$(call print-targets)
 	$(ECHO) "Done !"
 
 $(TARGET_SYM): $(TARGET_ELF)
@@ -166,7 +155,7 @@ $(TARGET_ELF):
 	$(call sub-make)
 	$(QUIET)$(CC) $(LDFLAGS) -o $(OUTDIR)/$@ $(PLATDIR)/cpu/start.o $(lib-files)
 
-PHONY	+= clean app platform system common
+PHONY	+= clean $(lib-dir)
 
 clean:
 	$(call sub-clean, clean)

@@ -1,6 +1,5 @@
 #ifndef __COMMON_H__
 #define __COMMON_H__
-//#include <core_reg.h>
 #include <serial.h>
 #include <timer.h>
 #include <string.h>
@@ -14,17 +13,14 @@
 #include <task.h>
 #include <queue.h>
 #include <semphr.h>
-
-void vMsgPrint(void  *pvParameters,char c);
-u16 CalCRC16(u8 *pdata,int size);
 #endif
 
 void rprintf(const char *fmt, ...);
 void mdelay(unsigned long ms);
 void udelay(unsigned long us);
 
-int interrupts_enable();
-void interrupts_disable();
+void interrupts_disable(void);
+void interrupts_enable(void);
 
 #ifndef printf
 #define printf rprintf

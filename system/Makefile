@@ -3,10 +3,15 @@ include $(TOPDIR)/compile.mk
 ifeq ($(OS_TYPE), FreeRTOS)
 obj-y	:=$(patsubst %.c,%.o,$(wildcard FreeRTOS/Source/portable/GCC/ARM_CM3/*.c))
 obj-y	:=$(patsubst %.c,%.o,$(wildcard FreeRTOS/Source/*.c))
-endif
-$(info "OS_TYPE=$(OS_TYPE)")
 
-CFLAGS += -I../platform/$(VENDOR)/$(CHIP)/lib/inc
+CFLAGS  += -I$(TOPDIR)/system/FreeRTOS/config \
+	-I$(TOPDIR)/system/FreeRTOS/Source/include \
+	-I$(TOPDIR)/system/FreeRTOS/Source/portable/GCC/$(CPU) \
+	-I$(TOPDIR)/system \
+
+endif
+
+CFLAGS += -I../platform/$(VENDOR)/$(CHIP)/inc
 
 lib-y	:= $(LIB_FILE)
 
