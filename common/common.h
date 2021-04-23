@@ -15,6 +15,8 @@
 #include <semphr.h>
 #endif
 
+void board_init(void);
+
 void rprintf(const char *fmt, ...);
 void mdelay(unsigned long ms);
 void udelay(unsigned long us);

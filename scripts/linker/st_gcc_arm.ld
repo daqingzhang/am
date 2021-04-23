@@ -1,8 +1,7 @@
-/* Linker script to configure memory regions. */
 MEMORY
 {
-  FLASH (rx)  : ORIGIN = 0x00000000, LENGTH = 512K
-  RAM   (rwx) : ORIGIN = 0x20000000, LENGTH = 256K
+	FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 0x1F800 /* 126K FLASH*/
+	RAM   (rwx) : ORIGIN = 0x20000000, LENGTH = 0x5000  /* 20KB RAM*/
 }
 
 
@@ -36,6 +35,7 @@ MEMORY
  *   __StackTop
  *   __stack
  */
+
 ENTRY(Reset_Handler)
 
 SECTIONS
@@ -43,10 +43,12 @@ SECTIONS
 	.text :
 	{
 		KEEP(*(.vectors))
-		*(.text*)
+		*(SORT_BY_NAME(.text*))
 
 		KEEP(*(.init))
 		KEEP(*(.fini))
+
+		*(.rodata*)
 
 		/* .ctors */
 		*crtbegin.o(.ctors)
@@ -61,8 +63,6 @@ SECTIONS
  		*(EXCLUDE_FILE(*crtend?.o *crtend.o) .dtors)
  		*(SORT(.dtors.*))
  		*(.dtors)
-
-		*(.rodata*)
 
 		KEEP(*(.eh_frame*))
 	} > FLASH
@@ -79,46 +79,23 @@ SECTIONS
 	} > FLASH
 	__exidx_end = .;
 
-	/* To copy multiple ROM to RAM sections,
-	 * uncomment .copy.table section and,
-	 * define __STARTUP_COPY_MULTIPLE in startup_ARMCMx.S */
-	/*
-	.copy.table :
-	{
-		. = ALIGN(4);
-		__copy_table_start__ = .;
-		LONG (__etext)
-		LONG (__data_start__)
-		LONG (__data_end__ - __data_start__)
-		LONG (__etext2)
-		LONG (__data2_start__)
-		LONG (__data2_end__ - __data2_start__)
-		__copy_table_end__ = .;
-	} > FLASH
-	*/
-
-	/* To clear multiple BSS sections,
-	 * uncomment .zero.table section and,
-	 * define __STARTUP_CLEAR_BSS_MULTIPLE in startup_ARMCMx.S */
-	/*
-	.zero.table :
-	{
-		. = ALIGN(4);
-		__zero_table_start__ = .;
-		LONG (__bss_start__)
-		LONG (__bss_end__ - __bss_start__)
-		LONG (__bss2_start__)
-		LONG (__bss2_end__ - __bss2_start__)
-		__zero_table_end__ = .;
-	} > FLASH
-	*/
-
 	/* Location counter can end up 2byte aligned with narrow Thumb code but
 	   __etext is assumed by startup code to be the LMA of a section in RAM
 	   which must be 4byte aligned */
 	__etext = ALIGN (4);
+	__ram_data_start_flash__ = __etext;
 
-	.data : AT (__etext)
+	.ram_vector_table (ORIGIN(RAM)) (NOLOAD) :
+	{
+		__ram_vector_start__ = .;
+		KEEP(*(.ram_vectors))
+		. = ALIGN(4);
+		__ram_vector_end__ = .;
+	} > RAM
+
+	__ram_data_start__ = __ram_vector_end__;
+
+	.data (__ram_data_start__): AT (__ram_data_start_flash__)
 	{
 		__data_start__ = .;
 		*(vtable)
@@ -149,10 +126,13 @@ SECTIONS
 		. = ALIGN(4);
 		/* All data end */
 		__data_end__ = .;
-
 	} > RAM
 
-	.bss :
+	__ram_data_end__ = __ram_data_start__ + SIZEOF(.data);
+	__ram_data_end_flash__ = __ram_data_start_flash__ + SIZEOF(.data);
+	__end_flash__ = __ram_data_end_flash__;
+
+	.bss (.) (NOLOAD) :
 	{
 		. = ALIGN(4);
 		__bss_start__ = .;
@@ -164,26 +144,39 @@ SECTIONS
 
 	.heap (COPY):
 	{
+		. = ALIGN(8);
+		__HeapBase = .;
 		__end__ = .;
-		PROVIDE(end = .);
-		*(.heap*)
 		__HeapLimit = .;
 	} > RAM
 
 	/* .stack_dummy section doesn't contain any symbols. It is only
 	 * used for linker to calculate size of stack sections, and assign
 	 * values to stack symbols later */
-	.stack_dummy (COPY):
+
+	.stack_dummy (.) (COPY):
 	{
-		*(.stack*)
+		. = 0x1000 ;
+		. = ALIGN(8);
+	} > RAM
+
+	.global_data (.) (COPY):
+	{
+		. = 0x40 ;
+		. = ALIGN(8);
 	} > RAM
 
 	/* Set stack top to end of RAM, and stack limit move down by
 	 * size of stack_dummy section */
-	__StackTop = ORIGIN(RAM) + LENGTH(RAM);
+	__StackTop = ORIGIN(RAM) + LENGTH(RAM) - SIZEOF(.global_data);
 	__StackLimit = __StackTop - SIZEOF(.stack_dummy);
+
+	__free_ram = __StackLimit - __end__;
+
 	PROVIDE(__stack = __StackTop);
 
 	/* Check if data + heap + stack exceeds RAM limit */
-	ASSERT(__StackLimit >= __HeapLimit, "region RAM overflowed with stack")
 }
+
+ASSERT(__StackLimit >= __HeapLimit, "region RAM overflowed with stack")
+ASSERT(__end_flash__ < (ORIGIN(FLASH) + LENGTH(FLASH)), "ERROR: no enough space for store code in FLASH !");

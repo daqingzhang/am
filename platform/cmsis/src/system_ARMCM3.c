@@ -24,14 +24,13 @@
  */
 
 #include "ARMCM3.h"
+#include "mem_location.h"
+#include "common.h"
 
 /*----------------------------------------------------------------------------
   Define clocks
  *----------------------------------------------------------------------------*/
-#define  XTAL            (50000000UL)     /* Oscillator frequency */
-
-#define  SYSTEM_CLOCK    (XTAL / 2U)
-
+#define  SYSTEM_CLOCK    (8000000)
 
 /*----------------------------------------------------------------------------
   Externals
@@ -54,15 +53,24 @@ void SystemCoreClockUpdate (void)
   SystemCoreClock = SYSTEM_CLOCK;
 }
 
-/*----------------------------------------------------------------------------
-  System initialization function
- *----------------------------------------------------------------------------*/
-void SystemInit (void)
+void NVIC_InitVectors(void)
 {
-
 #if defined (__VTOR_PRESENT) && (__VTOR_PRESENT == 1U)
   SCB->VTOR = (uint32_t) &__Vectors;
 #endif
+}
 
+void BootInit(void)
+{
+}
+
+/*----------------------------------------------------------------------------
+  System initialization function
+ *----------------------------------------------------------------------------*/
+
+void SystemInit (void)
+{
   SystemCoreClock = SYSTEM_CLOCK;
+
+  board_init();
 }

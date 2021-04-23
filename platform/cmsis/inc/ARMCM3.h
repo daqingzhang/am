@@ -98,7 +98,6 @@ typedef enum IRQn
 #include "core_cm3.h"                       /* Processor and core peripherals */
 #include "system_ARMCM3.h"                  /* System Header */
 
-
 /* --------  End of section using anonymous unions and disabling warnings  -------- */
 #if   defined (__CC_ARM)
   #pragma pop

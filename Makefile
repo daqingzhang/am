@@ -65,7 +65,7 @@ CFLAGS +=$(COMMON_FLAGS) $(KBUILD_CFLAGS) \
 	-I$(TOPDIR)/$(PLATDIR)/inc \
 	-I$(TOPDIR)/common \
 
-lib-dir	+= app/ platform/ system/
+lib-dir	+= platform/ system/ app/
 ifneq ($(core-y),)
 lib-dir	+= $(core-y)
 endif
@@ -153,7 +153,7 @@ $(TARGET_HEX): $(TARGET_ELF)
 
 $(TARGET_ELF):
 	$(call sub-make)
-	$(QUIET)$(CC) $(LDFLAGS) -o $(OUTDIR)/$@ $(PLATDIR)/cpu/start.o $(lib-files)
+	$(QUIET)$(CC) $(LDFLAGS) -o $(OUTDIR)/$@ $(lib-files)
 
 PHONY	+= clean $(lib-dir)
 

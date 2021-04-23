@@ -1,7 +1,7 @@
 include $(TOPDIR)/compile.mk
 
-obj-y +=$(patsubst %.S,%.o,$(wildcard $(VENDOR)/$(CHIP)/cpu/*.S))
-obj-y +=$(patsubst %.c,%.o,$(wildcard $(VENDOR)/$(CHIP)/cpu/*.c))
+obj-y +=$(patsubst %.S,%.o,$(wildcard cmsis/src/startup_ARMCM3.S))
+obj-y +=$(patsubst %.c,%.o,$(wildcard cmsis/src/system_ARMCM3.c))
 obj-y +=$(patsubst %.S,%.o,$(wildcard $(VENDOR)/$(CHIP)/hal/*.S))
 obj-y +=$(patsubst %.c,%.o,$(wildcard $(VENDOR)/$(CHIP)/hal/*.c))
 obj-y +=$(patsubst %.S,%.o,$(wildcard $(VENDOR)/$(CHIP)/lib/*.S))
@@ -11,6 +11,7 @@ obj-y +=$(patsubst %.c,%.o,$(wildcard main/*.c))
 CFLAGS += -I$(VENDOR)/$(CHIP)/hal/inc \
 	-I$(VENDOR)/$(CHIP)/inc \
 	-I$(TOPDIR)/app \
+	-I$(TOPDIR)/platform/cmsis/inc \
 
 lib-y :=$(LIB_FILE)
 

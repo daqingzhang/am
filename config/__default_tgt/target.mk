@@ -6,10 +6,9 @@ RTOS	?=1
 
 core-y +=
 
-LINKER_FILE ?=linker.ld
+LINKER_FILE ?=st_gcc_arm.ld
 
-KBUILD_CFLAGS := -mthumb -mcpu=cortex-m3 -march=armv7-m \
-	-DSTM32F10X_MD -DCHIP_STM32F10X -DGCC_ARMCM3 \
+KBUILD_CFLAGS := -DSTM32F10X_MD -DCHIP_STM32F10X -DGCC_ARMCM3
 
 
 KBUILD_CPPFLAGS +=
