@@ -23,6 +23,8 @@
  * limitations under the License.
  */
 
+#define __STARTUP_CLEAR_BSS
+
                 .syntax  unified
                 .arch    armv7-m
 
@@ -182,33 +184,40 @@ Reset_Handler:
                 strlt    r0, [r1], #4
                 blt      .L_loop3
 #endif /* __STARTUP_CLEAR_BSS_MULTIPLE || __STARTUP_CLEAR_BSS */
-		ldr	r0, =__StackTop
-		msr	msp, r0
-		movs	r0, 0
-		msr	control, r0
-		isb
-		mov	r1, r0
-		mov	r2, r0
-		mov	r3, r0
-		mov	r4, r0
-		mov	r5, r0
-		mov	r6, r0
-		mov	r7, r0
-		mov	r8, r0
-		mov	r9, r0
-		mov	r10, r0
-		mov	r11, r0
-		mov	r12, r0
+                ldr    r0, =__StackTop
+                msr    msp, r0
+                movs   r0, 0
+                msr    control, r0
+                isb
+                mov    r1, r0
+                mov    r2, r0
+                mov    r3, r0
+                mov    r4, r0
+                mov    r5, r0
+                mov    r6, r0
+                mov    r7, r0
+                mov    r8, r0
+                mov    r9, r0
+                mov    r10, r0
+                mov    r11, r0
+                mov    r12, r0
 
-		bl	NVIC_InitVectors
-		bl	BootInit
-                bl       SystemInit
-                bl       _start
+                /* init NVIC */
+                bl    NVIC_InitVectors
+
+                /* init memory sections */
+                bl    BootInit
+
+                /* init CPU, clocks */
+                bl    SystemInit
+
+                /* entry */
+                bl    _start
 
                 .fnend
                 .size    Reset_Handler, . - Reset_Handler
 
-
+#ifdef NO_CMSIS_NVIC
                 .thumb_func
                 .type    Default_Handler, %function
                 .weak    Default_Handler
@@ -241,3 +250,4 @@ Default_Handler:
                 Set_Default_Handler  SysTick_Handler
 
                 .end
+#endif

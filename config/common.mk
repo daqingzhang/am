@@ -9,10 +9,19 @@ ifeq ($(DEBUG),1)
 KBUILD_CFLAGS	+= -DDEBUG
 endif
 
-COMMON_FLAGS += -g -O2 -Wall -Werror -Wall -static \
-	-mthumb -mcpu=cortex-m3 -march=armv7-m \
+ifeq ($(CPU),ARM_CM3)
+COMMON_FLAGS += -mcpu=cortex-m3
+else if ($(CPU),ARM_CM4))
+COMMON_FLAGS += -mcpu=cortex-m4
+else
+$(error invalud CPU=$(CPU))
+endif
+
+COMMON_FLAGS += -g -Os -Wall -Werror -static \
+	-mthumb -march=armv7-m \
 	-fno-common -fno-builtin-printf -fno-exceptions \
 	--specs=nano.specs -specs=nosys.specs -lnosys \
 	-fmessage-length=0 -fsigned-char -std=gnu99 \
-	-ffunction-sections -fdata-sections -fshort-wchar \
+	-ffunction-sections -fdata-sections \
+
 

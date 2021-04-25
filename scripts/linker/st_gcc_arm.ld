@@ -48,8 +48,6 @@ SECTIONS
 		KEEP(*(.init))
 		KEEP(*(.fini))
 
-		*(.rodata*)
-
 		/* .ctors */
 		*crtbegin.o(.ctors)
 		*crtbegin?.o(.ctors)
@@ -65,6 +63,16 @@ SECTIONS
  		*(.dtors)
 
 		KEEP(*(.eh_frame*))
+	} > FLASH
+
+	.rodata :
+	{
+		. = ALIGN (4);
+		__flash_rodata_start__ = . ;
+		*(.rodata*)
+		*(.boot_rodata_flash*)
+		. = ALIGN (4);
+		__flash_rodata_end__ = . ;
 	} > FLASH
 
 	.ARM.extab :
@@ -85,15 +93,15 @@ SECTIONS
 	__etext = ALIGN (4);
 	__ram_data_start_flash__ = __etext;
 
-	.ram_vector_table (ORIGIN(RAM)) (NOLOAD) :
+	.vector_table (ORIGIN(RAM)) (NOLOAD) :
 	{
-		__ram_vector_start__ = .;
-		KEEP(*(.ram_vectors))
+		__vector_start__ = .;
+		KEEP(*(.vector_table))
 		. = ALIGN(4);
-		__ram_vector_end__ = .;
+		__vector_end__ = .;
 	} > RAM
 
-	__ram_data_start__ = __ram_vector_end__;
+	__ram_data_start__ = __vector_end__;
 
 	.data (__ram_data_start__): AT (__ram_data_start_flash__)
 	{
@@ -160,11 +168,13 @@ SECTIONS
 		. = ALIGN(8);
 	} > RAM
 
+	__gbl_data_start__ = . ;
 	.global_data (.) (COPY):
 	{
 		. = 0x40 ;
 		. = ALIGN(8);
 	} > RAM
+	__gbl_data_end__ = . ;
 
 	/* Set stack top to end of RAM, and stack limit move down by
 	 * size of stack_dummy section */

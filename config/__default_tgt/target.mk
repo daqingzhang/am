@@ -1,6 +1,6 @@
 VENDOR	?=st
 CHIP	?=stm32f10x
-CPU	?=ARM_CM3
+CPU		?=ARM_CM3
 DEBUG	?=1
 RTOS	?=1
 

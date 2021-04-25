@@ -1,7 +1,9 @@
 include $(TOPDIR)/compile.mk
 
-obj-y +=$(patsubst %.S,%.o,$(wildcard cmsis/src/startup_ARMCM3.S))
-obj-y +=$(patsubst %.c,%.o,$(wildcard cmsis/src/system_ARMCM3.c))
+suffix_str :=$(subst _,,$(CPU))
+
+obj-y +=$(patsubst %.S,%.o,$(wildcard cmsis/src/startup_$(suffix_str).S))
+obj-y +=$(patsubst %.c,%.o,$(wildcard cmsis/src/system_$(suffix_str).c))
 obj-y +=$(patsubst %.S,%.o,$(wildcard $(VENDOR)/$(CHIP)/hal/*.S))
 obj-y +=$(patsubst %.c,%.o,$(wildcard $(VENDOR)/$(CHIP)/hal/*.c))
 obj-y +=$(patsubst %.S,%.o,$(wildcard $(VENDOR)/$(CHIP)/lib/*.S))

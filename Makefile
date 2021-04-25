@@ -88,7 +88,7 @@ LDFLAGS += $(CFLAGS) $(LIB_LDFLAGS) -Lconfig/$(T) -L$(PLATDIR) \
 	-nostartfiles -ffast-math -lgcc \
 
 
-DPFLAGS := --disassemble-all \
+DPFLAGS := --disassemble-all --source \
 	--section=.text --section=.test.startup --section=.data \
 
 

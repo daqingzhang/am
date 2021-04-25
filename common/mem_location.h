@@ -7,14 +7,14 @@ extern "C" {
 
 #define HAL_SEC_CONCAT_2(a, b)          a.b
 #define HAL_SEC_CONCAT_3(a, b, c)       a.b.c
-#define HAL_SEC_TO_STR(s)               #s
+#define HAL_SEC_TO_STR_A(s)             #s
+#define HAL_SEC_TO_STR(s)               HAL_SEC_TO_STR_A(s)
 #define HAL_SEC_NAME_ATTR(s)            __attribute__((section(s)))
 
 #define HAL_SEC_DEF(section, name)      HAL_SEC_NAME_ATTR(HAL_SEC_TO_STR(HAL_SEC_CONCAT_2(section, name))) name
 #define HAL_SEC_LOC(section)            HAL_SEC_NAME_ATTR(HAL_SEC_TO_STR(HAL_SEC_CONCAT_2(section, __LINE__)))
 
 #if defined(__GNUC__) && !(defined(PROGRAMMER))
-
 #define BOOT_TEXT_SRAM_LOC              HAL_SEC_LOC(.boot_text_sram)
 #define BOOT_TEXT_SRAM_DEF(n)           HAL_SEC_DEF(.boot_text_sram, n)
 #define BOOT_TEXT_FLASH_LOC             HAL_SEC_LOC(.boot_text_flash)
@@ -47,9 +47,6 @@ extern "C" {
 
 #define REBOOT_CUSTOM_PARAM_LOC         HAL_SEC_LOC(.reboot_custom_param)
 #define REBOOT_CUSTOM_PARAM_DEF         HAL_SEC_DEF(.reboot_custom_param)
-
-#define RAM_VECT_LOC                    HAL_SEC_LOC(.ram_vectors)
-#define RAM_VECT_DEF(n)                 HAL_SEC_DEF(.ram_vectors, n)
 #else
 
 #define BOOT_TEXT_SRAM_LOC
