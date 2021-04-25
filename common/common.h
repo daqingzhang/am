@@ -8,6 +8,8 @@
 #define ARRAY_SIZE(arr)	(sizeof(arr)/sizeof((arr)[0]))
 #endif
 
+#define IRQ_PRIORITY_REALTIME 0
+
 #ifdef CONFIG_USE_FREERTOS
 #include <FreeRTOS.h>
 #include <task.h>

@@ -64,6 +64,7 @@ CFLAGS +=$(COMMON_FLAGS) $(KBUILD_CFLAGS) \
 	-I$(TOPDIR)/platform/cmsis/inc \
 	-I$(TOPDIR)/$(PLATDIR)/inc \
 	-I$(TOPDIR)/common \
+	-I$(TOPDIR)/app/inc \
 
 lib-dir	+= platform/ system/ app/
 ifneq ($(core-y),)

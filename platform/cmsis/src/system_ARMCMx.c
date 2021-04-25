@@ -1,7 +1,7 @@
 /**************************************************************************//**
  * @file     system_ARMCM3.c
  * @brief    CMSIS Device System Source File for
- *           ARMCM3 Device
+ *           ARMCMx Device
  * @version  V5.3.1
  * @date     09. July 2018
  ******************************************************************************/
@@ -23,24 +23,23 @@
  * limitations under the License.
  */
 
-#include "ARMCM3.h"
+#ifdef ARMCM3
+  #include "ARMCM3.h"
+#elif defined (ARMCM4)
+  #include "ARMCM4.h"
+#elif defined (ARMCM4_FP)
+  #include "ARMCM4_FP.h"
+#else
+  #error "CPU not matched"
+#endif
+
 #include "mem_location.h"
 #include "common.h"
 
-/*----------------------------------------------------------------------------
-  Define clocks
- *----------------------------------------------------------------------------*/
 #define  SYSTEM_CLOCK    (8000000)
 
-/*----------------------------------------------------------------------------
-  System Core Clock Variable
- *----------------------------------------------------------------------------*/
 uint32_t SystemCoreClock = SYSTEM_CLOCK;  /* System Core Clock Frequency */
 
-
-/*----------------------------------------------------------------------------
-  System Core Clock update function
- *----------------------------------------------------------------------------*/
 void SystemCoreClockUpdate (void)
 {
   SystemCoreClock = SYSTEM_CLOCK;
@@ -115,5 +114,35 @@ void SystemInit (void)
 {
   SystemCoreClock = SYSTEM_CLOCK;
 
-  board_init();
+#if defined (__FPU_USED) && (__FPU_USED == 1U)
+  SCB->CPACR |= ((3U << 10U*2U) |           /* enable CP10 Full Access */
+                 (3U << 11U*2U)  );         /* enable CP11 Full Access */
+#endif
+
+#ifdef UNALIGNED_ACCESS
+    SCB->CCR &= ~SCB_CCR_UNALIGN_TRP_Msk;
+#else
+    SCB->CCR |= SCB_CCR_UNALIGN_TRP_Msk;
+#endif
+
+#ifdef USAGE_FAULT
+    SCB->SHCSR |= SCB_SHCSR_USGFAULTENA_Msk;
+    NVIC_SetPriority(UsageFault_IRQn, IRQ_PRIORITY_REALTIME);
+#else
+    SCB->SHCSR &= ~SCB_SHCSR_USGFAULTENA_Msk;
+#endif
+#ifdef BUS_FAULT
+    SCB->SHCSR |= SCB_SHCSR_BUSFAULTENA_Msk;
+    NVIC_SetPriority(BusFault_IRQn, IRQ_PRIORITY_REALTIME);
+#else
+    SCB->SHCSR &= ~SCB_SHCSR_BUSFAULTENA_Msk;
+#endif
+#ifdef MEM_FAULT
+    SCB->SHCSR |= SCB_SHCSR_MEMFAULTENA_Msk;
+    NVIC_SetPriority(MemoryManagement_IRQn, IRQ_PRIORITY_REALTIME);
+#else
+    SCB->SHCSR &= ~SCB_SHCSR_MEMFAULTENA_Msk;
+#endif
+
+    board_init();
 }

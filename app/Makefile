@@ -1,9 +1,7 @@
 include $(TOPDIR)/compile.mk
 
-obj-y +=$(patsubst %.S,%.o,$(wildcard init/*.S))
-obj-y +=$(patsubst %.c,%.o,$(wildcard init/*.c))
-
-CFLAGS	+=-Iinit/
+obj-y +=$(patsubst %.S,%.o,$(wildcard src/*.S))
+obj-y +=$(patsubst %.c,%.o,$(wildcard src/*.c))
 
 lib-y :=$(LIB_FILE)
 

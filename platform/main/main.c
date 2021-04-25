@@ -1,14 +1,12 @@
 #include <string.h>
 #include <common.h>
+#include <app_init.h>
 
-void _start(void)
-{
-	printf("hello world");
-}
-
-int app_main(void)
+int main(void)
 {
 	printf("hello world\n");
+
+	app_init(0, NULL);
 
 	for(;;) {
 		//TODO: do sth
@@ -16,3 +14,5 @@ int app_main(void)
 
 	return 0;
 }
+
+int _start(void)  __attribute__((weak,alias("main")));
