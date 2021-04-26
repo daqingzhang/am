@@ -1,8 +1,10 @@
 #ifndef __COMMON_H__
 #define __COMMON_H__
+#include <stdbool.h>
+#include <stdint.h>
+#include <string.h>
 #include <serial.h>
 #include <timer.h>
-#include <string.h>
 
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(arr)	(sizeof(arr)/sizeof((arr)[0]))
@@ -25,6 +27,9 @@ void udelay(unsigned long us);
 
 void interrupts_disable(void);
 void interrupts_enable(void);
+
+uint32_t int_lock(void);
+void int_unlock(uint32_t lock);
 
 #ifndef printf
 #define printf rprintf
