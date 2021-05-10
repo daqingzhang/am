@@ -9,6 +9,12 @@ ifeq ($(DEBUG),1)
 KBUILD_CFLAGS	+= -DDEBUG
 endif
 
+ifeq ($(CHIP),stm32f10x)
+CPU ?= ARM_CM3
+else
+CPU ?= ARM_CM4
+endif
+
 ifeq ($(CPU),ARM_CM3)
 COMMON_FLAGS += -mcpu=cortex-m3
 else if ($(CPU),ARM_CM4))

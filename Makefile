@@ -88,10 +88,12 @@ LDFLAGS += $(CFLAGS) $(LIB_LDFLAGS) -Lconfig/$(T) -L$(PLATDIR) \
 	-Wl,-nostdlib,--relax,-Map=$(OUTDIR)/$(TARGET_MAP),--gc-sections \
 	-nostartfiles -ffast-math -lgcc \
 
-
-DPFLAGS := --disassemble-all --source \
+DPFLAGS := --disassemble-all \
 	--section=.text --section=.test.startup --section=.data \
 
+ifeq ($(ASM_MIX_SOURCE),1)
+DPFLAGS += --source
+endif
 
 export CFLAGS LDFLAGS
 
