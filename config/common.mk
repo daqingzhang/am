@@ -5,8 +5,14 @@ ifeq ($(RTOS),1)
 export RTOS
 endif
 
+export SVR_MOD_TERM ?= 1
+
 ifeq ($(DEBUG),1)
 KBUILD_CFLAGS	+= -DDEBUG
+endif
+
+ifneq ($(DEBUG_PORT),)
+KBUILD_CFLAGS	+= -DDEBUG_PORT=$(DEBUG_PORT)
 endif
 
 ifeq ($(CHIP),stm32f10x)

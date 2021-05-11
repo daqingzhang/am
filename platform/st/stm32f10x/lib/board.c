@@ -12,7 +12,11 @@ void board_init(void)
 	retval = system_init_clock();
 
 	// config serial
-	serial_init(USART1_ID | USART2_ID);
+#if (DEBUG_PORT == 1)
+	serial_init(USART1_ID);
+#elif (DEBUG_PORT == 2)
+	serial_init(USART2_ID);
+#endif
 
 	printf("\nserial inited\n");
 

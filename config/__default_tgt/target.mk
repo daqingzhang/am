@@ -2,6 +2,7 @@ VENDOR	?=st
 CHIP	?=stm32f10x
 DEBUG	?=1
 RTOS	?=1
+DEBUG_PORT ?= 1
 
 core-y +=
 

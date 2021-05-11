@@ -1,5 +1,5 @@
-#ifndef __TCMD_H__
-#define __TCMD_H__
+#ifndef __TERM_CMD_H__
+#define __TERM_CMD_H__
 
 enum TERM_CMD_ID_T {
 	TERM_CMD_ID_HELP,
@@ -29,8 +29,10 @@ typedef struct {
 		.handler = _handler, \
 	}
 
-int term_get_cmd_list(term_cmd_t **list);
+term_cmd_t **term_get_cmd_list(int *nr);
 int term_register_cmd_handler(enum TERM_CMD_ID_T cmd, term_cmd_handler_t handler);
-int term_deregister_cmd_handler(enum TERM_CMD_ID_T cmd, term_cmd_handler_t handler);
+int term_deregister_cmd_handler(enum TERM_CMD_ID_T cmd);
+void term_print_cmd(enum TERM_CMD_ID_T id);
+void term_print_cmd_list(void);
 
 #endif
