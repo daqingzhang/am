@@ -6,6 +6,10 @@ int main(void)
 {
 	printf("hello world\n");
 
+#ifdef CMD_QUEUE_TEST
+	cmd_queue_test();
+#endif
+
 	app_init(0, NULL);
 
 	for(;;) {

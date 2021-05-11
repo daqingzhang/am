@@ -67,7 +67,8 @@ CFLAGS +=$(COMMON_FLAGS) $(KBUILD_CFLAGS) \
 	-I$(TOPDIR)/app/inc \
 	-I$(TOPDIR)/services/inc \
 
-lib-dir	+= platform/ system/ app/ services/
+lib-dir	+= platform/ system/ app/ services/ common/
+
 ifneq ($(core-y),)
 lib-dir	+= $(core-y)
 endif

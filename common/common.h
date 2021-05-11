@@ -19,6 +19,8 @@
 #include <semphr.h>
 #endif
 
+#include "cqueue.h"
+
 void board_init(void);
 
 void rprintf(const char *fmt, ...);

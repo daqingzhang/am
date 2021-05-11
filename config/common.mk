@@ -11,6 +11,10 @@ ifeq ($(DEBUG),1)
 KBUILD_CFLAGS	+= -DDEBUG
 endif
 
+ifeq ($(CMD_QUEUE_TEST),1)
+KBUILD_CFLAGS	+= -DCMD_QUEUE_TEST
+endif
+
 ifneq ($(DEBUG_PORT),)
 KBUILD_CFLAGS	+= -DDEBUG_PORT=$(DEBUG_PORT)
 endif
