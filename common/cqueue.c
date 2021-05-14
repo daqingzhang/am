@@ -4,24 +4,23 @@
 
 #define QUEUE_LOG(...) do {} while(0)
 
-int cqueue_init(cqueue_t *q, uint8_t *buf, uint32_t item_size, uint32_t total_size)
+int cqueue_init(cqueue_t *q, cqueue_item_t *buf, uint32_t item_size, uint32_t total_size)
 {
 	if (q == NULL || buf == NULL) {
-		return -1;
+		return CQUEUE_RET_ERR_INV;
 	}
 	if (item_size > total_size) {
-		return -2;
+		return CQUEUE_RET_ERR_SIZE;
 	}
 	if ((total_size % item_size) != 0) {
-		return -3;
+		return CQUEUE_RET_ERR_UNALIGNED;
 	}
 	q->buf = buf;
-	q->wpos = 0;
-	q->rpos = 0;
+	q->wpos = q->rpos = 0;
 	q->item_size = item_size;
 	q->total_size = total_size;
 	memset(q->buf, 0, q->total_size);
-	return 0;
+	return CQUEUE_RET_OK;
 }
 
 int cqueue_enqueue(cqueue_t *q, void *item)
@@ -36,7 +35,7 @@ int cqueue_enqueue(cqueue_t *q, void *item)
 	return 0;
 }
 
-void *cqueue_dequeue(cqueue_t *q)
+static void *cqueue_dequeue_raw(cqueue_t *q, bool move)
 {
 	void *src = NULL;
 	uint32_t avail;
@@ -48,20 +47,24 @@ void *cqueue_dequeue(cqueue_t *q)
 	}
 	if (avail >= q->item_size) {
 		src = (void *)(q->buf + q->rpos);
-		q->rpos += q->item_size;
-		if (q->rpos >= q->total_size) {
-			q->rpos -= q->total_size;
+		if (move) {
+			q->rpos += q->item_size;
+			if (q->rpos >= q->total_size) {
+				q->rpos -= q->total_size;
+			}
 		}
 	}
 	return src;
 }
 
-void cqueue_dequeue2(cqueue_t *q, void *item)
+void *cqueue_dequeue(cqueue_t *q)
 {
-	void *src = cqueue_dequeue(q);
-	if (item) {
-		memcpy(item, src, q->item_size);
-	}
+	return cqueue_dequeue_raw(q, true);
+}
+
+void *cqueue_peak_queue(cqueue_t *q)
+{
+	return cqueue_dequeue_raw(q, false);
 }
 
 bool cqueue_is_empty(cqueue_t *q)
@@ -74,6 +77,11 @@ bool cqueue_is_empty(cqueue_t *q)
 		avail = q->total_size - q->rpos + q->wpos;
 	}
 	return avail > 0 ? false : true;
+}
+
+void cqueue_clear(cqueue_t *q)
+{
+	q->wpos = q->rpos = 0;
 }
 
 uint32_t cqueue_get_total_size(cqueue_t *q)
@@ -105,6 +113,16 @@ bool cmd_queue_is_empty(cqueue_t *q)
 uint32_t cmd_queue_total_size(cqueue_t *q)
 {
 	return cqueue_get_total_size(q);
+}
+
+uint32_t cmd_queue_peak(cqueue_t *q)
+{
+	return *(uint32_t *)cqueue_peak_queue(q);
+}
+
+void cmd_queue_clear(cqueue_t *q)
+{
+	cqueue_clear(q);
 }
 
 #ifdef CMD_QUEUE_TEST
