@@ -5,6 +5,8 @@
 #include <string.h>
 #include <serial.h>
 #include <timer.h>
+#include "ctrace.h"
+#include "cqueue.h"
 
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(arr)	(sizeof(arr)/sizeof((arr)[0]))
@@ -18,8 +20,6 @@
 #include <queue.h>
 #include <semphr.h>
 #endif
-
-#include "cqueue.h"
 
 void board_init(void);
 
