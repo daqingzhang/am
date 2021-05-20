@@ -13,9 +13,9 @@ void board_init(void)
 
 	// config serial
 #if (DEBUG_PORT == 1)
-	serial_init(USART1_ID);
+	serial_init(SERIAL_ID_0);
 #elif (DEBUG_PORT == 2)
-	serial_init(USART2_ID);
+	serial_init(SERIAL_ID_1);
 #endif
 
 	printf("\nserial inited\n");

@@ -6,16 +6,19 @@
 #include <stm32f10x_gpio.h>
 #include <stm32f10x_usart.h>
 
+#define USART1_ID SERIAL_ID_0
+#define USART2_ID SERIAL_ID_1
+
 /*
  * USART Basic Driver
  **************************************************************
  */
 static int usart_config_nvic(int id)
 {
-	if(id & USART1_ID) {
+	if (id == USART1_ID) {
 		system_nvic_set_channel(USART1_IRQn,NVIC_CHANNEL_PRIO_USART1,0,1);
 	}
-	if(id & USART2_ID) {
+	else if (id == USART2_ID) {
 		system_nvic_set_channel(USART2_IRQn,NVIC_CHANNEL_PRIO_USART2,0,1);
 	} 
 	return 0;
@@ -25,7 +28,7 @@ static int usart_config_pins(int id)
 {
 	GPIO_InitTypeDef init;
 
-	if(id & USART1_ID) {
+	if (id == USART1_ID) {
 		/* enable gpio apb clock
 		 * USART1 Rx (PA.10) input-floating
 		 * USART1 Tx (PA.09) alt-push-pull
@@ -41,7 +44,7 @@ static int usart_config_pins(int id)
 		init.GPIO_Mode   = GPIO_Mode_IN_FLOATING;
 		GPIO_Init(GPIOA, &init);
 	}
-	if(id & USART2_ID) {
+	else if (id == USART2_ID) {
 		/* enable gpio apb clock
 		 * USART2 Tx (PA.02) as alt-push-pull
 		 * USART2 Rx (PA.03) as input-floating
@@ -60,24 +63,46 @@ static int usart_config_pins(int id)
 	return 0;
 }
 
-static int usart_config_format(int id,int baudrate)
+static int usart_config_format(int id, serial_config_t *cfg)
 {
 	USART_InitTypeDef init;
 
 	// config: 8,N,1,no CTS/RTS
-	init.USART_BaudRate    = (uint16_t)baudrate;
-	init.USART_WordLength  = USART_WordLength_8b;
-	init.USART_Parity      = USART_Parity_No;
-	init.USART_StopBits    = USART_StopBits_1;
+	init.USART_BaudRate    = (uint16_t)cfg->baudrate;
+	if (cfg->data_bits == 9) {
+		init.USART_WordLength  = USART_WordLength_9b;
+	} else {
+		init.USART_WordLength  = USART_WordLength_8b;
+	}
+	if (cfg->parity == 1) {
+		init.USART_Parity      = USART_Parity_Odd;
+	} else if (cfg->parity == 2) {
+		init.USART_Parity      = USART_Parity_Even;
+	} else {
+		init.USART_Parity      = USART_Parity_No;
+	}
+	if (cfg->stop_bits == 2) {
+		init.USART_StopBits    = USART_StopBits_2;
+	} else {
+		init.USART_StopBits    = USART_StopBits_1;
+	}
+	if (cfg->flow_ctrl == 0) {
+		init.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+	} else if (cfg->flow_ctrl == 1) {
+		init.USART_HardwareFlowControl = USART_HardwareFlowControl_RTS;
+	} else if (cfg->flow_ctrl == 2) {
+		init.USART_HardwareFlowControl = USART_HardwareFlowControl_CTS;
+	} else if (cfg->flow_ctrl == 3) {
+		init.USART_HardwareFlowControl = USART_HardwareFlowControl_RTS_CTS;
+	}
 	init.USART_Mode        = USART_Mode_Rx | USART_Mode_Tx;
-	init.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
 
-	if(id & USART1_ID) {
+	if (id == USART1_ID) {
 		RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
 		USART_Init(USART1, &init);
 		USART_Cmd(USART1, ENABLE);
 	}
-	if(id & USART2_ID) {
+	else if (id == USART2_ID) {
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
 		USART_Init(USART2, &init);
 		USART_Cmd(USART2, ENABLE);
@@ -87,31 +112,35 @@ static int usart_config_format(int id,int baudrate)
 
 static int usart_reset(int id)
 {
-	if(id & USART1_ID) {
+	if (id == USART1_ID) {
 		USART_DeInit(USART1);
 	}
-	if(id & USART1_ID) {
+	else if (id == USART1_ID) {
 		USART_DeInit(USART2);
 	}
 	return 0;
 }
 
-static int usart_init(int id,int baudrate)
+static int usart_init(int id, serial_config_t *cfg)
 {
 	int r;
 
 	r = usart_reset(id);
-	if(r)
+	if(r) {
 		return r;
+	}
 	r = usart_config_nvic(id);
-	if(r)
+	if(r) {
 		return r;
+	}
 	r = usart_config_pins(id);
-	if(r)
+	if(r) {
 		return r;
-	r = usart_config_format(id,baudrate);
-	if(r)
+	}
+	r = usart_config_format(id, cfg);
+	if(r) {
 		return r;
+	}
 	return 0;
 }
 
@@ -152,37 +181,96 @@ static void __usart2_putc(char ch)
  **************************************************************
  */
 
-void serial_init(int id)
-{
-	if(id & USART1_ID)
-		usart_init(USART1_ID,CONFIG_USART1_BAUDRATE);
+#define SERIAL_ID_CHECK(id) {if((id) >= SERIAL_ID_QTY) {return -1;}}
 
-	if(id & USART2_ID)
-		usart_init(USART2_ID,CONFIG_USART2_BAUDRATE);
+static serial_config_t ser_cfg[SERIAL_ID_QTY] = {
+	{
+		.data_bits = 8,
+		.parity = 0, //0:None, 1:Odd, 2:Even
+		.stop_bits = 1,//1:1bit, 2:2bit
+		.flow_ctrl = 1, //1: flow control, 0: no flow control,
+		.baudrate = CONFIG_SERIAL_0_BAUDRATE,
+	},
+	{
+		.data_bits = 8,
+		.parity = 0, //0:None, 1:Odd, 2:Even
+		.stop_bits = 1,//1:1bit, 2:2bit
+		.flow_ctrl = 1, //1: flow control, 0: no flow control,
+		.baudrate = CONFIG_SERIAL_1_BAUDRATE,
+	},
+};
+
+int serial_set_config(enum SERIAL_ID_T id, serial_config_t *cfg)
+{
+	serial_config_t *sc;
+
+	SERIAL_ID_CHECK(id);
+
+	sc = &ser_cfg[id];
+	if (cfg) {
+		*sc = *cfg;
+	}
+	return 0;
 }
 
-char serial_getc(int id)
+int serial_get_config(enum SERIAL_ID_T id, serial_config_t *cfg)
+{
+	serial_config_t *sc;
+
+	SERIAL_ID_CHECK(id);
+
+	sc = &ser_cfg[id];
+	if (cfg) {
+		*cfg = *sc;
+	}
+	return 0;
+}
+
+int serial_get_speed(enum SERIAL_ID_T id)
+{
+	SERIAL_ID_CHECK(id);
+
+	return ser_cfg[id].baudrate;
+}
+
+int serial_set_speed(enum SERIAL_ID_T id, int speed)
+{
+	SERIAL_ID_CHECK(id);
+
+	ser_cfg[id].baudrate = speed;
+
+	return usart_config_format(id, &ser_cfg[id]);
+}
+
+void serial_init(enum SERIAL_ID_T id)
+{
+	usart_init(id, &ser_cfg[id]);
+}
+
+char serial_getc(enum SERIAL_ID_T id)
 {
 	char ch = 0;
 
-	if(id & USART1_ID)
+	if (id == USART1_ID) {
 		ch = __usart1_getc();
-	if(id & USART2_ID)
+	}
+	else if (id == USART2_ID) {
 		ch = __usart2_getc();
-
+	}
 	return ch;
 }
 
 static void serial_putc_hw(int id,char ch)
 {
-	if(id & USART1_ID)
+	if (id == USART1_ID) {
 		__usart1_putc(ch);
-
-	if(id & USART2_ID)
+	}
+	else if (id == USART2_ID) {
 		__usart2_putc(ch);
+	}
 }
 
-void serial_putc(int id,char ch)
+void serial_putc(enum SERIAL_ID_T id,char ch)
 {
 	if(ch == '\n') {
 		serial_putc_hw(id,'\r');
@@ -190,25 +278,27 @@ void serial_putc(int id,char ch)
 	serial_putc_hw(id,ch);
 }
 
-int serial_tstc(int id)
+int serial_tstc(enum SERIAL_ID_T id)
 {
 	int r = 0;
 
-	if(id & USART1_ID) {
-		if(USART1->SR & USART_FLAG_RXNE)
+	if(id == USART1_ID) {
+		if(USART1->SR & USART_FLAG_RXNE) {
 			r = 1;
+		}
 	}
-	if(id & USART2_ID) {
-		if(USART2->SR & USART_FLAG_RXNE)
+	else if(id == USART2_ID) {
+		if(USART2->SR & USART_FLAG_RXNE) {
 			r = 1;
+		}
 	}
 	return r;
 }
 
-void serial_puts(int id,const char *pstr)
+void serial_puts(enum SERIAL_ID_T id,const char *pstr)
 {
-	while(*pstr != '\0') {
-		serial_putc(id,*pstr++);
+	while (*pstr != '\0') {
+		serial_putc(id, *pstr++);
 	}
 }
 
@@ -223,7 +313,7 @@ static void backspace(int id,int cnts)
 	}
 }
 
-int serial_gets(int id,char *pstr)
+int serial_gets(enum SERIAL_ID_T id,char *pstr)
 {
 	int length;
 
@@ -281,6 +371,7 @@ void hex2asc(uint8_t *phex,char *pasc,int hexlen)
 {
 	uint8_t temp;
 	char ch;
+
 	*(pasc+hexlen) = '\0';
 	phex += hexlen;
 	while(hexlen--) {
