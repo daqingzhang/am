@@ -188,14 +188,14 @@ static serial_config_t ser_cfg[SERIAL_ID_QTY] = {
 		.data_bits = 8,
 		.parity = 0, //0:None, 1:Odd, 2:Even
 		.stop_bits = 1,//1:1bit, 2:2bit
-		.flow_ctrl = 1, //1: flow control, 0: no flow control,
+		.flow_ctrl = 0, //1: flow control, 0: no flow control,
 		.baudrate = CONFIG_SERIAL_0_BAUDRATE,
 	},
 	{
 		.data_bits = 8,
 		.parity = 0, //0:None, 1:Odd, 2:Even
 		.stop_bits = 1,//1:1bit, 2:2bit
-		.flow_ctrl = 1, //1: flow control, 0: no flow control,
+		.flow_ctrl = 0, //1: flow control, 0: no flow control,
 		.baudrate = CONFIG_SERIAL_1_BAUDRATE,
 	},
 };

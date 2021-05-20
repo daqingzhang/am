@@ -10,7 +10,7 @@ void sample_test(void)
 	int tick = 0;
 
 	do {
-		printf("hello world, %d",++tick);
+		printf("hello world, %d\n",++tick);
 		mdelay(1000);
 	} while(1);
 }
