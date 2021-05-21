@@ -12,10 +12,15 @@ void board_init(void)
 	retval = system_init_clock();
 
 	// config serial
+//	serial_config_t sc;
 #if (DEBUG_PORT == 1)
-	serial_init(SERIAL_ID_0);
+	//serial_get_config(SERIAL_ID_0, &sc);
+	//serial_open(SERIAL_ID_0, &sc);
+	trace_open(TRACE_TRANSPORT_UART1);
 #elif (DEBUG_PORT == 2)
-	serial_init(SERIAL_ID_1);
+	//serial_get_config(SERIAL_ID_1, &sc);
+	//serial_open(SERIAL_ID_1, &sc);
+	trace_open(TRACE_TRANSPORT_UART2);
 #endif
 
 	printf("\nserial inited\n");

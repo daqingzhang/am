@@ -9,6 +9,7 @@ void sample_test(void)
 {
 	int tick = 0;
 
+	TRACE(1, "hello world\n");
 	do {
 		printf("hello world, %d\n",++tick);
 		mdelay(1000);

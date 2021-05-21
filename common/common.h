@@ -5,7 +5,7 @@
 #include <string.h>
 #include <serial.h>
 #include <timer.h>
-#include "ctrace.h"
+#include "trace.h"
 #include "cqueue.h"
 
 #ifndef ARRAY_SIZE

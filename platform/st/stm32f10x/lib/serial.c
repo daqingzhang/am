@@ -242,9 +242,17 @@ int serial_set_speed(enum SERIAL_ID_T id, int speed)
 	return usart_config_format(id, &ser_cfg[id]);
 }
 
-void serial_init(enum SERIAL_ID_T id)
+int serial_open(enum SERIAL_ID_T id, serial_config_t *cfg)
 {
+	if (cfg) {
+		serial_set_config(id, cfg);
+	}
 	usart_init(id, &ser_cfg[id]);
+	return 0;
+}
+
+void serial_close(enum SERIAL_ID_T id)
+{
 }
 
 char serial_getc(enum SERIAL_ID_T id)

@@ -4,7 +4,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#include <stdio.h>
 #include <stdint.h>
+#include <stdarg.h>
+#include <stdbool.h>
+#include <string.h>
+
 #if 0
 typedef unsigned char  uint8_t;
 typedef unsigned short uint16_t;

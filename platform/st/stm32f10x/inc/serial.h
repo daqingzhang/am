@@ -28,7 +28,8 @@ enum SERIAL_ID_T {
 	SERIAL_ID_QTY,
 };
 
-void serial_init(enum SERIAL_ID_T id);
+int serial_open(enum SERIAL_ID_T id, serial_config_t *cfg);
+void serial_close(enum SERIAL_ID_T id);
 int serial_tstc(enum SERIAL_ID_T id);
 char serial_getc(enum SERIAL_ID_T id);
 void serial_putc(enum SERIAL_ID_T id,char c);
