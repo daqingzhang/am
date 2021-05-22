@@ -12,7 +12,14 @@
 #define ARRAY_SIZE(arr)	(sizeof(arr)/sizeof((arr)[0]))
 #endif
 
-#define IRQ_PRIORITY_REALTIME 0
+#define IRQ_PRIORITY_REALTIME     0
+#define IRQ_PRIORITY_HIGHPLUSPLUS 1
+#define IRQ_PRIORITY_HIGHPLUS     2
+#define IRQ_PRIORITY_HIGH         3
+#define IRQ_PRIORITY_ABOVENORMAL  4
+#define IRQ_PRIORITY_NORMAL       5
+#define IRQ_PRIORITY_LOWER        6
+#define IRQ_PRIORITY_LOWEST       7
 
 #ifdef CONFIG_USE_FREERTOS
 #include <FreeRTOS.h>

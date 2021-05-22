@@ -2,6 +2,11 @@
 #include <stm32f10x_system.h>
 #include <system_arm.h>
 
+static uint32_t cpu_irq_disable = 0;
+static uint32_t cpu_irq_lock = 0;
+
+//#define INT_LOCK_EXCEPTION
+
 static const char *excp_vect_str[] =
 {
 	"rsv0",
@@ -49,14 +54,67 @@ void show_regs(const struct pt_regs *regs)
 	printf("HFSR:%8x    CFSR:%8x\n",hfsr,cfsr);
 }
 
-void interrupts_enable(void)
+uint32_t int_lock_global(void)
 {
-//	__enable_irq();
+	uint32_t pri = __get_PRIMASK();
+
+	if ((pri & 0x1) == 0) {
+		__disable_irq();
+	}
+	return pri;
+}
+
+void int_unlock_global(uint32_t pri)
+{
+	if ((pri & 0x1) == 0) {
+		__enable_irq();
+	}
+}
+
+uint32_t int_lock_part(void)
+{
+	uint32_t pri = __get_BASEPRI();
+	__set_BASEPRI(((IRQ_PRIORITY_HIGHPLUS << (8 - __NVIC_PRIO_BITS)) & (uint32_t)0xFFUL));
+	return pri;
+}
+
+void int_unlock_part(uint32_t pri)
+{
+	__set_BASEPRI(pri);
+}
+
+uint32_t int_lock(void)
+{
+#ifdef INT_LOCK_EXCEPTION
+	return int_lock_part();
+#else
+	return int_lock_global();
+#endif
+}
+
+void int_unlock(uint32_t pri)
+{
+#ifdef INT_LOCK_EXCEPTION
+	int_lock_part(pri);
+#else
+	int_unlock_global(pri);
+#endif
 }
 
 void interrupts_disable(void)
 {
-//	__disable_irq();
+	if (!cpu_irq_disable) {
+		cpu_irq_lock = int_lock();
+		cpu_irq_disable = 1;
+	}
+}
+
+void interrupts_enable(void)
+{
+	if (cpu_irq_disable) {
+		cpu_irq_disable = 0;
+		int_unlock(cpu_irq_lock);
+	}
 }
 
 void NMI_Handler(void)
