@@ -135,6 +135,9 @@ export LIB_FILE ?= builtin.a
 lib-files := $(addsuffix $(LIB_FILE),$(lib-dir))
 $(info lib-files=$(lib-files))
 
+$(info ========================================================)
+$(info COMPILING ...)
+
 TARGETS :=$(TARGET_BIN) $(TARGET_HEX) $(TARGET_ELF) $(TARGET_SYM) $(TARGET_LST) $(TARGET_SEC)
 
 all: $(TARGETS)
